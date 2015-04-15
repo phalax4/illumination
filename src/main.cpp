@@ -38,8 +38,15 @@ void calculateHSL(){
 }
 
 //directly calculate Luminance from RGB
-void calculateLuminance(){
-
+//calcalat Luma
+void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
+	//Y = 0.2126 R + 0.7152 G + 0.0722 B
+	std::vector<unsigned char> imgVector = imgRaw->data; 
+	int counter = 0;
+	//interate through every 3 to get Luma Y
+	for (auto & element : imgVector) {
+    
+	}
 }
 
 //generate histogram
