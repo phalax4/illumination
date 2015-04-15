@@ -44,8 +44,17 @@ void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	std::vector<unsigned char> imgVector = imgRaw->data; 
 	int counter = 0;
 	//interate through every 3 to get Luma Y
-	for (auto & element : imgVector) {
-    
+	double luma = 0.0;
+	for (auto & ele : imgVector) {
+    	if(count==0){
+    		luma =  0.2126*ele;
+    	}else if(count==1){
+    		luma = 0.7152*ele;
+    	}else{
+    		luma = 0.0722*ele;
+    		//store luma somewhere
+    		count = 0;
+    	}
 	}
 }
 
