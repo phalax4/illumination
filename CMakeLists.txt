@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(Illumination)
+project(illumination)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -11,6 +11,12 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   tf
+  pcl_ros
+	pcl_conversions
+	sensor_msgs
+  OpenCV REQUIRED 
+
+
 )
 
 ## System dependencies are found with CMake's conventions
@@ -68,10 +74,11 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   action_lib_msgs#   move_base_msgs#   std_msgs
-# )
+generate_messages(
+ DEPENDENCIES
+   std_msgs
+   sensor_msgs
+  )
 
 ###################################
 ## catkin specific configuration ##
@@ -82,6 +89,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
+
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES Illumination
@@ -98,6 +109,7 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
@@ -106,16 +118,17 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-# add_executable(Illumination_node src/Illumination_node.cpp)
+ add_executable(illumination_node src/main.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(Illumination_node Illumination_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(Illumination_node
-#   ${catkin_LIBRARIES}
-# )
+ #target_link_libraries(illumination_node
+ # ${catkin_LIBRARIES}
+#)
+target_link_libraries(illumination_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES})
 
 #############
 ## Install ##
