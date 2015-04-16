@@ -26,7 +26,7 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
-
+//#include <algorithm.h>
 
 ros::Publisher pub;
 geometry_msgs::Twist turn;
@@ -36,26 +36,33 @@ geometry_msgs::Twist turn;
 void calculateHSL(){
 
 }
+void calculateHSI(){
+	
+}
 
 //directly calculate Luminance from RGB
 //calcalat Luma
-void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
+double calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	//Y = 0.2126 R + 0.7152 G + 0.0722 B
+	
 	std::vector<unsigned char> imgVector = imgRaw->data; 
-	int counter = 0;
+	int count = 0;
 	//interate through every 3 to get Luma Y
 	double luma = 0.0;
-	for (auto & ele : imgVector) {
-    	if(count==0){
-    		luma =  0.2126*ele;
+	//for_each();
+	for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); ++it) {
+		if(count==0){
+    		luma =  0.2126* (*it);
     	}else if(count==1){
-    		luma = 0.7152*ele;
+    		luma = 0.7152* (*it);
     	}else{
-    		luma = 0.0722*ele;
+    		luma = 0.0722*(*it);
     		//store luma somewhere
     		count = 0;
     	}
+    	//std::cout << *it;
 	}
+	return luma;
 }
 
 //generate histogram
@@ -66,16 +73,16 @@ void calculateHistogram(){
 
 //recieves the raw Image
 //http://docs.ros.org/api/sensor_msgs/html/msg/Image.html
-void capture(const sensor_msgs::ImageConstPtr& imgRaw){
+void captureImage(const sensor_msgs::ImageConstPtr& imgRaw){
 	//std::vector<unsigned char> imgVector = imgRaw->data;    // declares a vector of unsigned chars
 
-	cv_bridge::CvImagePtr cv_ptr;
-	cv::Mat HSVImage;
-	cv::Mat ThreshImage;
+	//cv_bridge::CvImagePtr cv_ptr;
+	//cv::Mat HSVImage;
+	//cv::Mat ThreshImage;
 	// transform ROS image into OpenCV image
-	cv_ptr = cv_bridge::toCvCopy(imgRaw, sensor_msgs::image_encodings::BGR8);
+	//cv_ptr = cv_bridge::toCvCopy(imgRaw, sensor_msgs::image_encodings::BGR8);
 	//Transform the colors into HSV
-	cvtColor(cv_ptr->image,HSVImage,CV_BGR2HSV);
+	//cvtColor(cv_ptr->image,HSVImage,CV_BGR2HSV);
 }
 
 
@@ -85,7 +92,7 @@ int main(int argc, char ** cc){
 	ros::NodeHandle n;
 	//ros::Subscriber sub = n.subscribe("/mobile_base/commands/velocity",1000,twirl);//what topic to subscribe to
 
-	ros::Subscriber cam_sub = n.subscribe("/kinect_camera/rgb/image_raw",1000,capture);//Image topic
+	ros::Subscriber cam_sub = n.subscribe("/kinect_camera/rgb/image_raw",1000,captureImage);//Image topic
 
 	pub = n.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity",1000);//moving the robot
 

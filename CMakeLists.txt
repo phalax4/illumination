@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   pcl_ros
 	pcl_conversions
 	sensor_msgs
-  OpenCV REQUIRED 
+  #OpenCV REQUIRED 
 
 
 )
@@ -109,7 +109,7 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  ${OpenCV_INCLUDE_DIRS}
+ # ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
@@ -128,7 +128,7 @@ include_directories(
  #target_link_libraries(illumination_node
  # ${catkin_LIBRARIES}
 #)
-target_link_libraries(illumination_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES})
+target_link_libraries(illumination_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} )# ${OpenCV_LIBRARIES})
 
 #############
 ## Install ##
