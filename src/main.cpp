@@ -27,7 +27,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
 //#include <algorithm.h>
-
+#include <nav_msgs/Odometry.h>
 ros::Publisher pub;
 geometry_msgs::Twist turn;
 
@@ -36,6 +36,8 @@ geometry_msgs::Twist turn;
 void calculateHSL(const sensor_msgs::ImageConstPtr& imgRaw){
 
 }
+
+
 void calculateHSI(const sensor_msgs::ImageConstPtr& imgRaw){
 
 }
@@ -64,7 +66,8 @@ double calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	}
 	return luma;
 }
-
+// /camera/rgb/image_mono
+// /camera/rgb/image_color
 void writeToTrainingSet(){
 
 }
@@ -74,7 +77,7 @@ void readFromTrainingSet(){
 }
 
 void Classify(){
-	
+
 }
 //generate histogram
 //use GNU scientific library?
@@ -96,6 +99,13 @@ void captureImage(const sensor_msgs::ImageConstPtr& imgRaw){
 	//cvtColor(cv_ptr->image,HSVImage,CV_BGR2HSV);
 }
 
+void getOdom(const nav_msgs::Odometry::ConstPtr &odom_msg){
+	//double yaw = tf::getYaw(odom_msg.pose.orientation);
+	tf::Pose pose;
+  	tf::poseMsgToTF(odom_msg->pose.pose, pose);
+  	double yaw = tf::getYaw(pose.getRotation());
+	ROS_INFO("The yaw right now is: %f",yaw);
+}
 
 int main(int argc, char ** cc){
 
@@ -104,7 +114,7 @@ int main(int argc, char ** cc){
 	//ros::Subscriber sub = n.subscribe("/mobile_base/commands/velocity",1000,twirl);//what topic to subscribe to
 
 	ros::Subscriber cam_sub = n.subscribe("/kinect_camera/rgb/image_raw",1000,captureImage);//Image topic
-
+	ros::Subscriber odom_sub = n.subscribe("/odom",1000,getOdom);
 	pub = n.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity",1000);//moving the robot
 
 	//pub = n.advertise<geometry_msgs::Twist>("/cmd_vel",1000); //topic for segbots
