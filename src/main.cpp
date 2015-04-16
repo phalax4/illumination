@@ -123,16 +123,16 @@ int main(int argc, char ** cc){
  
 	double ros_rate = 20.0;// x times per second
 	ros::Rate r(ros_rate);
-
+	int turn_number = 1;	
 	while (ros::ok())
 	{
 
-	int turn_number = 1;	
-	if(yaw == 0.0 && turn_number == 0){
+	if((turn_number==0) || (yaw<=-0.009 && yaw >=-0.1 )){
 		turn.angular.z = 0.0;
-		turn_number--;
+		turn_number = turn_number-1;
 	}else{
 		turn.angular.z = 0.5;
+
 
 	}
 	//need to implement turn control logic aka detect how many turns have passed
