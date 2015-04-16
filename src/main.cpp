@@ -30,7 +30,7 @@
 #include <nav_msgs/Odometry.h>
 ros::Publisher pub;
 geometry_msgs::Twist turn;
-
+double yaw;
 //calculate HSL from RGB
 //Open CV?
 void calculateHSL(const sensor_msgs::ImageConstPtr& imgRaw){
@@ -103,7 +103,7 @@ void getOdom(const nav_msgs::Odometry::ConstPtr &odom_msg){
 	//double yaw = tf::getYaw(odom_msg.pose.orientation);
 	tf::Pose pose;
   	tf::poseMsgToTF(odom_msg->pose.pose, pose);
-  	double yaw = tf::getYaw(pose.getRotation());
+  	yaw = tf::getYaw(pose.getRotation());
 	ROS_INFO("The yaw right now is: %f",yaw);
 }
 
@@ -126,12 +126,21 @@ int main(int argc, char ** cc){
 
 	while (ros::ok())
 	{
-	
+
+	int turn_number = 1;	
+	if(yaw == 0.0 && turn_number == 0){
+		turn.angular.z = 0.0;
+		turn_number--;
+	}else{
+		turn.angular.z = 0.5;
+
+	}
 	//need to implement turn control logic aka detect how many turns have passed
 	turn.linear.x = 0.0;
 	turn.linear.y = 0.0;
-	turn.angular.z = 0.5;
 	pub.publish(turn);
+
+
 
 		ros::spinOnce();
 		r.sleep();
