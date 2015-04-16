@@ -33,11 +33,11 @@ geometry_msgs::Twist turn;
 
 //calculate HSL from RGB
 //Open CV?
-void calculateHSL(){
+void calculateHSL(const sensor_msgs::ImageConstPtr& imgRaw){
 
 }
-void calculateHSI(){
-	
+void calculateHSI(const sensor_msgs::ImageConstPtr& imgRaw){
+
 }
 
 //directly calculate Luminance from RGB
@@ -65,6 +65,17 @@ double calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	return luma;
 }
 
+void writeToTrainingSet(){
+
+}
+
+void readFromTrainingSet(){
+
+}
+
+void Classify(){
+	
+}
 //generate histogram
 //use GNU scientific library?
 void calculateHistogram(){
