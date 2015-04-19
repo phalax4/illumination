@@ -44,27 +44,33 @@ void calculateHSI(const sensor_msgs::ImageConstPtr& imgRaw){
 
 //directly calculate Luminance from RGB
 //calcalat Luma
-double calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
+double gamma = 2.2;
+void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw,const double imgLuma[][],int row){
 	//Y = 0.2126 R + 0.7152 G + 0.0722 B
-	
-	std::vector<unsigned char> imgVector = imgRaw->data; 
+	std::vector<unsigned char> imgVector = imgRaw->data;
+	double[imgVector/3.0] lumaArray;
+
 	int count = 0;
 	//interate through every 3 to get Luma Y
 	double luma = 0.0;
+	int i = 0;
 	//for_each();
 	for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); ++it) {
 		if(count==0){
-    		luma =  0.2126* (*it);
+    		luma +=  0.2126* (*it) * gamma;
     	}else if(count==1){
-    		luma = 0.7152* (*it);
+    		luma += 0.7152* (*it) * gamma;
     	}else{
-    		luma = 0.0722*(*it);
+    		luma += 0.0722*(*it) * gamma;
     		//store luma somewhere
     		count = 0;
     	}
+    	lumaArray[row][i] = luma;
+    	luma = 0.0;
+    	i++;
     	//std::cout << *it;
 	}
-	return luma;
+
 }
 // /camera/rgb/image_mono
 // /camera/rgb/image_color
@@ -116,20 +122,23 @@ int main(int argc, char ** cc){
 	ros::Subscriber cam_sub = n.subscribe("/kinect_camera/rgb/image_raw",1000,captureImage);//Image topic
 	ros::Subscriber odom_sub = n.subscribe("/odom",1000,getOdom);
 	pub = n.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity",1000);//moving the robot
-
+	ros::Publisher odo = n.advertise<std_msgs::Empty>("~commands/reset_odometry",1000);
 	//pub = n.advertise<geometry_msgs::Twist>("/cmd_vel",1000); //topic for segbots
 
 
  
 	double ros_rate = 20.0;// x times per second
+	std_msgs::Empty empty;
 	ros::Rate r(ros_rate);
-	int turn_number = 1;	
+	int turn_number = 1;
+
 	while (ros::ok())
 	{
 
 	if((turn_number==0) || (yaw<=-0.009 && yaw >=-0.1 )){
 		turn.angular.z = 0.0;
 		turn_number = turn_number-1;
+		odo.publish(empty); //reset the odometer as above control logic cannot guarantee precise full turn
 	}else{
 		turn.angular.z = 0.5;
 
