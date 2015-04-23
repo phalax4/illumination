@@ -26,8 +26,10 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
-//#include <algorithm.h>
+#include <algorithm>
 #include <nav_msgs/Odometry.h>
+#include <iostream>
+#include <fstream>
 ros::Publisher pub;
 geometry_msgs::Twist turn;
 double yaw;
@@ -44,17 +46,21 @@ void calculateHSI(const sensor_msgs::ImageConstPtr& imgRaw){
 
 //directly calculate Luminance from RGB
 //calcalat Luma
+/*
 double gamma = 2.2;
-void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw,const double imgLuma[][],int row){
+void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	//Y = 0.2126 R + 0.7152 G + 0.0722 B
 	std::vector<unsigned char> imgVector = imgRaw->data;
-	double[imgVector/3.0] lumaArray;
-
+	//ouble[imgVector/3.0] lumaArray;
+	std::string 
+	ofstream myfile;
+  	myfile.open ("example.txt");
+  myfile << "Writing this to a file.\n";
+  myfile.close();
 	int count = 0;
 	//interate through every 3 to get Luma Y
 	double luma = 0.0;
 	int i = 0;
-	//for_each();
 	for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); ++it) {
 		if(count==0){
     		luma +=  0.2126* (*it) * gamma;
@@ -62,16 +68,15 @@ void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw,const double im
     		luma += 0.7152* (*it) * gamma;
     	}else{
     		luma += 0.0722*(*it) * gamma;
-    		//store luma somewhere
     		count = 0;
     	}
-    	lumaArray[row][i] = luma;
     	luma = 0.0;
     	i++;
     	//std::cout << *it;
 	}
 
 }
+*/
 // /camera/rgb/image_mono
 // /camera/rgb/image_color
 void writeToTrainingSet(){
