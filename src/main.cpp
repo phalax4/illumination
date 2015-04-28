@@ -19,9 +19,9 @@
 #include <vector>
 //#include <opencv/highgui.h>
 //#include <opencv/cv.h>
-#include "opencv2/core/core.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/highgui/highgui.hpp"
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include <iostream>
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
@@ -30,6 +30,7 @@
 #include <nav_msgs/Odometry.h>
 #include <iostream>
 #include <fstream>
+
 ros::Publisher pub;
 geometry_msgs::Twist turn;
 double yaw;
@@ -46,37 +47,39 @@ void calculateHSI(const sensor_msgs::ImageConstPtr& imgRaw){
 
 //directly calculate Luminance from RGB
 //calcalat Luma
-/*
-double gamma = 2.2;
+
+double gam = 2.2;
 void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	//Y = 0.2126 R + 0.7152 G + 0.0722 B
 	std::vector<unsigned char> imgVector = imgRaw->data;
 	//ouble[imgVector/3.0] lumaArray;
-	std::string 
-	ofstream myfile;
-  	myfile.open ("example.txt");
-  myfile << "Writing this to a file.\n";
-  myfile.close();
+	//std::string 
+	//ofstream myfile;
+  	//myfile.open ("example.txt");
+  //myfile << "Writing this to a file.\n";
+  //myfile.close();
 	int count = 0;
 	//interate through every 3 to get Luma Y
 	double luma = 0.0;
 	int i = 0;
 	for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); ++it) {
 		if(count==0){
-    		luma +=  0.2126* (*it) * gamma;
+    		luma +=  0.2126* (*it) * gam;
+    		count++;
     	}else if(count==1){
-    		luma += 0.7152* (*it) * gamma;
+    		luma += 0.7152* (*it) * gam;
+    		count++;
     	}else{
-    		luma += 0.0722*(*it) * gamma;
+    		luma += 0.0722*(*it) * gam;
     		count = 0;
+    		ROS_INFO("The luma value is: %f",luma);
     	}
     	luma = 0.0;
-    	i++;
     	//std::cout << *it;
 	}
 
 }
-*/
+
 // /camera/rgb/image_mono
 // /camera/rgb/image_color
 void writeToTrainingSet(){
@@ -99,15 +102,8 @@ void calculateHistogram(){
 //recieves the raw Image
 //http://docs.ros.org/api/sensor_msgs/html/msg/Image.html
 void captureImage(const sensor_msgs::ImageConstPtr& imgRaw){
-	//std::vector<unsigned char> imgVector = imgRaw->data;    // declares a vector of unsigned chars
+	calculateLuminance(imgRaw);
 
-	//cv_bridge::CvImagePtr cv_ptr;
-	//cv::Mat HSVImage;
-	//cv::Mat ThreshImage;
-	// transform ROS image into OpenCV image
-	//cv_ptr = cv_bridge::toCvCopy(imgRaw, sensor_msgs::image_encodings::BGR8);
-	//Transform the colors into HSV
-	//cvtColor(cv_ptr->image,HSVImage,CV_BGR2HSV);
 }
 
 void getOdom(const nav_msgs::Odometry::ConstPtr &odom_msg){
@@ -123,8 +119,10 @@ int main(int argc, char ** cc){
 	ros::init(argc,cc,"illumination");
 	ros::NodeHandle n;
 	//ros::Subscriber sub = n.subscribe("/mobile_base/commands/velocity",1000,twirl);//what topic to subscribe to
+	//ros::Subscriber sub = nh.subscribe ("/camera/depth_registered/points", 1000, cloud_sub);
+	//ros::Subscriber cam_sub = n.subscribe("/camera/depth_registered/",1000,captureImage);//Image topic
 
-	ros::Subscriber cam_sub = n.subscribe("/kinect_camera/rgb/image_raw",1000,captureImage);//Image topic
+	ros::Subscriber cam_sub = n.subscribe("/camera/rgb/image_color",1000,captureImage);//Image topic
 	ros::Subscriber odom_sub = n.subscribe("/odom",1000,getOdom);
 	pub = n.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity",1000);//moving the robot
 	ros::Publisher odo = n.advertise<std_msgs::Empty>("~commands/reset_odometry",1000);
@@ -135,23 +133,24 @@ int main(int argc, char ** cc){
 	double ros_rate = 20.0;// x times per second
 	std_msgs::Empty empty;
 	ros::Rate r(ros_rate);
-	int turn_number = 1;
-
+	//int turn_number = 1;
+	double startYaw = 0.0;
 	while (ros::ok())
 	{
 
-	if((turn_number==0) || (yaw<=-0.009 && yaw >=-0.1 )){
-		turn.angular.z = 0.0;
-		turn_number = turn_number-1;
-		odo.publish(empty); //reset the odometer as above control logic cannot guarantee precise full turn
-	}else{
+
+	//if((turn_number==0) || (yaw<=-0.009 && yaw >=-0.1 )){
+	//	turn.angular.z = 0.0;
+		//turn_number--; //turn_number-1;
+		//odo.publish(empty); //reset the odometer as above control logic cannot guarantee precise full turn
+	//}else{
 		turn.angular.z = 0.5;
 
 
-	}
+	//}
 	//need to implement turn control logic aka detect how many turns have passed
-	turn.linear.x = 0.0;
-	turn.linear.y = 0.0;
+	//turn.linear.x = 0.0;
+	//turn.linear.y = 0.0;
 	pub.publish(turn);
 
 
