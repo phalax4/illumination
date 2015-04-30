@@ -34,13 +34,31 @@
 ros::Publisher pub;
 geometry_msgs::Twist turn;
 double yaw;
+bool inPosition = true;
 //calculate HSL from RGB
 //Open CV?
+/*
 void calculateHSL(const sensor_msgs::ImageConstPtr& imgRaw){
+	unsigned char r,g,b;  //WHAT IS THIS
+	int max, min, l; 
+	std::vector<unsigned char> imgVector = imgRaw->data;
+	r = imgVector.begin(); //r is the first value in data vector
+	g = imgVector[1]; //g is the second value
+	b = imgVector.end();
+	r /=(unsigned)255;
+	g /=(unsigned)255;
+	b /=(unsigned)255;
+	std::vector<unsigned char> DeltaVector;
+	DeltaVector = {r, g, b};
+	min = *std::min_element(DeltaVector,DeltaVector+3);
+	max = *std::max_element(DeltaVector,DeltaVector+3);
+	std::cout << "The smallest element is " << min << '\n';
+  	std::cout << "The largest element is "  << max << '\n'; 
+  	l = (max+min)/2;
 
 }
 
-
+*/
 void calculateHSI(const sensor_msgs::ImageConstPtr& imgRaw){
 
 }
@@ -52,32 +70,33 @@ double gam = 2.2;
 void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	//Y = 0.2126 R + 0.7152 G + 0.0722 B
 	std::vector<unsigned char> imgVector = imgRaw->data;
-	//ouble[imgVector/3.0] lumaArray;
+	//double[imgVector/3.0] lumaArray;
 	//std::string 
 	//ofstream myfile;
   	//myfile.open ("example.txt");
   //myfile << "Writing this to a file.\n";
   //myfile.close();
-	int count = 0;
+	//int count = 0;
 	//interate through every 3 to get Luma Y
 	double luma = 0.0;
-	int i = 0;
-	for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); ++it) {
-		if(count==0){
-    		luma +=  0.2126* (*it) * gam;
-    		count++;
-    	}else if(count==1){
-    		luma += 0.7152* (*it) * gam;
-    		count++;
-    	}else{
-    		luma += 0.0722*(*it) * gam;
-    		count = 0;
-    		ROS_INFO("The luma value is: %f",luma);
-    	}
-    	luma = 0.0;
-    	//std::cout << *it;
+	if(inPosition){ 
+		for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); it+=3) {
+			//if(count==0){
+	    		luma +=  0.2126* (*it) * gam;
+	    	//	count++;
+	    	//}else if(count==1){
+	    		luma += 0.7152* (*(it+1)) * gam;
+	    	//	count++;
+	    	//}else{
+	    		luma += 0.0722*(*(it+2)) * gam;
+	    		//count = 0;
+	    		ROS_INFO("The luma value is: %f",luma);
+	    	//}
+	    	luma = 0.0;
+	    	//std::cout << *it;
+		}
+		inPosition = false;
 	}
-
 }
 
 // /camera/rgb/image_mono
@@ -125,7 +144,7 @@ int main(int argc, char ** cc){
 	ros::Subscriber cam_sub = n.subscribe("/camera/rgb/image_color",1000,captureImage);//Image topic
 	ros::Subscriber odom_sub = n.subscribe("/odom",1000,getOdom);
 	pub = n.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity",1000);//moving the robot
-	ros::Publisher odo = n.advertise<std_msgs::Empty>("~commands/reset_odometry",1000);
+	//ros::Publisher odo = n.advertise<std_msgs::Empty>("~commands/reset_odometry",1000);
 	//pub = n.advertise<geometry_msgs::Twist>("/cmd_vel",1000); //topic for segbots
 
 
@@ -134,7 +153,8 @@ int main(int argc, char ** cc){
 	std_msgs::Empty empty;
 	ros::Rate r(ros_rate);
 	//int turn_number = 1;
-	double startYaw = 0.0;
+	double startYaw = yaw;
+	double startDegrees = angles::normalize_angle_positive(angles::to_degrees(startYaw));
 	while (ros::ok())
 	{
 
@@ -144,14 +164,21 @@ int main(int argc, char ** cc){
 		//turn_number--; //turn_number-1;
 		//odo.publish(empty); //reset the odometer as above control logic cannot guarantee precise full turn
 	//}else{
-		turn.angular.z = 0.5;
+		int degree = angles::normalize_angle_positive(angles::to_degrees(yaw));
+		if( degree == 90){
+			turn.angular.z = 0.0;
+			inPosition = true;
+
+		}else{
+			turn.angular.z = 0.3;
+		}
 
 
 	//}
 	//need to implement turn control logic aka detect how many turns have passed
 	//turn.linear.x = 0.0;
 	//turn.linear.y = 0.0;
-	pub.publish(turn);
+		pub.publish(turn);
 
 
 
