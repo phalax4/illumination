@@ -90,11 +90,12 @@ void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	    	//}else{
 	    		luma += 0.0722*(*(it+2)) * gam;
 	    		//count = 0;
-	    		ROS_INFO("The luma value is: %f",luma);
+	    		//ROS_INFO("The luma value is: %f",luma);
 	    	//}
 	    	luma = 0.0;
 	    	//std::cout << *it;
 		}
+		ROS_WARN("Picture has been Processed!");
 		inPosition = false;
 	}
 }
@@ -164,13 +165,14 @@ int main(int argc, char ** cc){
 		//turn_number--; //turn_number-1;
 		//odo.publish(empty); //reset the odometer as above control logic cannot guarantee precise full turn
 	//}else{
-		int degree = angles::normalize_angle_positive(angles::to_degrees(yaw));
-		if( degree == 90){
+		int degree = angles::to_degrees(yaw);
+		ROS_INFO("%d",degree);
+		if( degree ==90|| degree == 0 || degree == -179){
 			turn.angular.z = 0.0;
 			inPosition = true;
 
 		}else{
-			turn.angular.z = 0.3;
+			turn.angular.z = 0.5;
 		}
 
 
