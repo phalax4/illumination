@@ -30,15 +30,20 @@
 #include <iostream>
 #include <fstream>
 #include "illumination/ArrayData.h"
-
+#include <map>
 //req is a vector
 bool classify(illumination::ArrayData::Request &req,illumination::ArrayData::Response &res){
 	std::vector<unsigned char> imgVector = req.data;
-	unsigned char histogram[255];
-	for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); it+=3) {
+	//unsigned char bins[256];
+	std::map <unsigned char[], bool> trainingData;
+	for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); it++) {
 
 	}
 	return true;
+}
+void writeTrainingData(int mean){
+
+
 }
 int main(int argc, char ** cc){
 	ros::init(argc,cc,"illumination");
