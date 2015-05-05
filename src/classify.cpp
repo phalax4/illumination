@@ -42,6 +42,8 @@ bool classify(illumination::ArrayData::Request &req,illumination::ArrayData::Res
 	return true;
 }
 void writeTrainingData(int mean){
+	//picture #, mean, 1(True, broken) or 0(False, not broken)
+
 
 
 }
