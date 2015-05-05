@@ -31,8 +31,8 @@
 #include <fstream>
 #include "illumination/ArrayData.h"
 ros::Publisher pub;
-ros::ServiceClient client
-illuminatin::ArrayData srv;
+ros::ServiceClient client;
+illumination::ArrayData srv;
 geometry_msgs::Twist turn;
 double yaw;
 bool inPosition = true;
@@ -40,25 +40,28 @@ bool inPosition = true;
 //Open CV?
 
 void calculateHSL(const sensor_msgs::ImageConstPtr& imgRaw){
-	unsigned char r,g,b;  //WHAT IS THIS
-	int max, min, l; 
+	unsigned char r, g, b, l;  
+	int max, min; 
+	int arrayIndex =0;
 	std::vector<unsigned char> imgVector = imgRaw->data;
-	r = imgVector[0]; //r is the first value in data vector
-	g = imgVector[1]; //g is the second value
-	b = imgVector[2];
-	r /=255;
-	g /=255;
-	b /=255;
-	//std::vector<unsigned char> DeltaVector;
-	unsigned char DeltaVector[] = {r,g,b };
-	//DeltaVector = {r, g, b};
-	min = *std::min_element(DeltaVector,DeltaVector+3);
-	max = *std::max_element(DeltaVector,DeltaVector+3);
-	std::cout << "The smallest element is " << min << '\n';
-  	std::cout << "The largest element is "  << max << '\n'; 
-  	l = (max+min)/2;
-
+	unsigned char myArray[imgVector.size()/3];  //array with just the l value
+	for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); it+=3) {  //every three 
+		r = *it; //gets the value from the iterator
+		r /=255;  
+		g = *it+1; 
+		g /=255;  
+		b = *it+2;
+		b /=255;  
+		min = *std::min_element(myArray+arrayIndex, myArray+(arrayIndex+3));
+		max = *std::max_element(myArray+arrayIndex, myArray+(arrayIndex+3));
+		std::cout << "The smallest element is " << min << '\n';
+	  	std::cout << "The largest element is "  << max << '\n'; 
+	  	l = (max+min)/2;
+		myArray[arrayIndex] = l;
+		arrayIndex++;
+	}
 }
+
 
 
 void calculateHSI(const sensor_msgs::ImageConstPtr& imgRaw){
@@ -72,8 +75,10 @@ double gam = 1.0;//2.2;
 void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	//Y = 0.2126 R + 0.7152 G + 0.0722 B
 	std::vector<unsigned char> imgVector = imgRaw->data;
-	int size = (imgVector.size())/3;
-	unsigned char lumaArray[size];
+	//int size = (imgVector.size())/3;
+	//unsigned char lumaArray[size];
+	std::vector<unsigned char> lumaArray;
+
 	int counter = 0;
 	//double[imgVector/3.0] lumaArray;
 	//std::string 
@@ -98,16 +103,19 @@ void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	    		//count = 0;
 	    		//ROS_INFO("The luma value is: %f",luma);
 	    	//}
-	    		lumaArray[counter] = luma;
-	    	luma = 0.0;
+	    		//lumaArray[counter] = luma;
+	    		luma = 0.0;
+	    		lumaArray.push_back(luma);
+	    		//counter++;
 	    	//std::cout << *it;
 		}
-		srv.request.data = 
+		srv.request.data = lumaArray;
 		if (client.call(srv)){
-       		ROS_INFO("RESPONSE is %d", (int)srv.response.sum);
+       		ROS_INFO("RESPONSE is %d", (int)srv.response.success);
      	}else{
        		ROS_ERROR("Failed to call service");
-       		return 1;
+       		//return 1;
+       		//return 0;
     	}
 		ROS_WARN("Picture has been Processed!");
 	}

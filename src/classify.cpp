@@ -34,8 +34,9 @@
 //req is a vector
 bool classify(illumination::ArrayData::Request &req,illumination::ArrayData::Response &res){
 	std::vector<unsigned char> imgVector = req.data;
+	unsigned char histogram[255];
 	for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); it+=3) {
-		
+
 	}
 	return true;
 }
