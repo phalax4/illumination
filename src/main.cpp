@@ -2,7 +2,6 @@
 #include "geometry_msgs/Twist.h"
 #include <cmath>
 #include "angles/angles.h"
-
 #include "std_msgs/String.h"
 #include "sensor_msgs/PointCloud2.h"
 #include <pcl/point_types.h>
@@ -30,26 +29,29 @@
 #include <nav_msgs/Odometry.h>
 #include <iostream>
 #include <fstream>
-
+#include "illumination/ArrayData.h"
 ros::Publisher pub;
+ros::ServiceClient client
+illuminatin::ArrayData srv;
 geometry_msgs::Twist turn;
 double yaw;
 bool inPosition = true;
 //calculate HSL from RGB
 //Open CV?
-/*
+
 void calculateHSL(const sensor_msgs::ImageConstPtr& imgRaw){
 	unsigned char r,g,b;  //WHAT IS THIS
 	int max, min, l; 
 	std::vector<unsigned char> imgVector = imgRaw->data;
-	r = imgVector.begin(); //r is the first value in data vector
+	r = imgVector[0]; //r is the first value in data vector
 	g = imgVector[1]; //g is the second value
-	b = imgVector.end();
-	r /=(unsigned)255;
-	g /=(unsigned)255;
-	b /=(unsigned)255;
-	std::vector<unsigned char> DeltaVector;
-	DeltaVector = {r, g, b};
+	b = imgVector[2];
+	r /=255;
+	g /=255;
+	b /=255;
+	//std::vector<unsigned char> DeltaVector;
+	unsigned char DeltaVector[] = {r,g,b };
+	//DeltaVector = {r, g, b};
 	min = *std::min_element(DeltaVector,DeltaVector+3);
 	max = *std::max_element(DeltaVector,DeltaVector+3);
 	std::cout << "The smallest element is " << min << '\n';
@@ -58,7 +60,7 @@ void calculateHSL(const sensor_msgs::ImageConstPtr& imgRaw){
 
 }
 
-*/
+
 void calculateHSI(const sensor_msgs::ImageConstPtr& imgRaw){
 
 }
@@ -66,10 +68,13 @@ void calculateHSI(const sensor_msgs::ImageConstPtr& imgRaw){
 //directly calculate Luminance from RGB
 //calcalat Luma
 
-double gam = 2.2;
+double gam = 1.0;//2.2;
 void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	//Y = 0.2126 R + 0.7152 G + 0.0722 B
 	std::vector<unsigned char> imgVector = imgRaw->data;
+	int size = (imgVector.size())/3;
+	unsigned char lumaArray[size];
+	int counter = 0;
 	//double[imgVector/3.0] lumaArray;
 	//std::string 
 	//ofstream myfile;
@@ -79,7 +84,8 @@ void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	//int count = 0;
 	//interate through every 3 to get Luma Y
 	double luma = 0.0;
-	if(inPosition){ 
+	if(inPosition){ //max gray value is 255
+		inPosition = false;
 		for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); it+=3) {
 			//if(count==0){
 	    		luma +=  0.2126* (*it) * gam;
@@ -92,11 +98,18 @@ void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	    		//count = 0;
 	    		//ROS_INFO("The luma value is: %f",luma);
 	    	//}
+	    		lumaArray[counter] = luma;
 	    	luma = 0.0;
 	    	//std::cout << *it;
 		}
+		srv.request.data = 
+		if (client.call(srv)){
+       		ROS_INFO("RESPONSE is %d", (int)srv.response.sum);
+     	}else{
+       		ROS_ERROR("Failed to call service");
+       		return 1;
+    	}
 		ROS_WARN("Picture has been Processed!");
-		inPosition = false;
 	}
 }
 
@@ -134,6 +147,7 @@ void getOdom(const nav_msgs::Odometry::ConstPtr &odom_msg){
 	ROS_INFO("The yaw right now is: %f",yaw);
 }
 
+
 int main(int argc, char ** cc){
 
 	ros::init(argc,cc,"illumination");
@@ -145,6 +159,9 @@ int main(int argc, char ** cc){
 	ros::Subscriber cam_sub = n.subscribe("/camera/rgb/image_color",1000,captureImage);//Image topic
 	ros::Subscriber odom_sub = n.subscribe("/odom",1000,getOdom);
 	pub = n.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity",1000);//moving the robot
+
+	client = n.serviceClient<illumination::ArrayData>("array_data");
+
 	//ros::Publisher odo = n.advertise<std_msgs::Empty>("~commands/reset_odometry",1000);
 	//pub = n.advertise<geometry_msgs::Twist>("/cmd_vel",1000); //topic for segbots
 

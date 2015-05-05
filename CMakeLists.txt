@@ -12,8 +12,10 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   pcl_ros
-	pcl_conversions
-	sensor_msgs
+  pcl_conversions
+  sensor_msgs
+
+  genmsg
   #OpenCV REQUIRED 
 
 
@@ -53,18 +55,20 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
+ #add_message_files(
+ # FILES
 #   Message1.msg
 #   Message2.msg
-# )
+   # RGBL.msg
+ #)
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
+ add_service_files(
+  FILES
+  ArrayData.srv
 #   Service1.srv
 #   Service2.srv
-# )
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -98,6 +102,7 @@ catkin_package(
 #  LIBRARIES Illumination
 #  CATKIN_DEPENDS action_lib_msgs actionlib message_generation move_base_msgs roscpp std_msgs tf
 #  DEPENDS system_lib
+   CATKIN_DEPENDS message_runtime
 )
 
 ###########
@@ -119,17 +124,19 @@ include_directories(
 
 ## Declare a cpp executable
  add_executable(illumination_node src/main.cpp)
+add_executable(illumination_classify src/classify.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(Illumination_node Illumination_generate_messages_cpp)
-
+add_dependencies(illumination_node illumination_generate_messages_cpp)
+add_dependencies(illumination_classify illumination_generate_messages_cpp)
 ## Specify libraries to link a library or executable target against
  #target_link_libraries(illumination_node
  # ${catkin_LIBRARIES}
 #)
 target_link_libraries(illumination_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} )# ${OpenCV_LIBRARIES})
-
+target_link_libraries(illumination_classify ${catkin_LIBRARIES} ${PCL_LIBRARIES} )# ${OpenCV_LIBRARIES})
 #############
 ## Install ##
 #############
