@@ -110,7 +110,9 @@ void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	    		//counter++;
 	    	//std::cout << *it;
 		}
+	
 		srv.request.data = lumaArray;
+
 		if (client.call(srv)){
        		ROS_INFO("RESPONSE is %d", (int)srv.response.success);
      	}else{
@@ -118,8 +120,10 @@ void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
        		//return 1;
        		//return 0;
     	}
+
 		ROS_WARN("Picture has been Processed!");
 	}
+
 }
 
 // /camera/rgb/image_mono
@@ -137,13 +141,13 @@ void getOdom(const nav_msgs::Odometry::ConstPtr &odom_msg){
 	tf::Pose pose;
   	tf::poseMsgToTF(odom_msg->pose.pose, pose);
   	yaw = tf::getYaw(pose.getRotation());
-	ROS_INFO("The yaw right now is: %f",yaw);
+	//ROS_INFO("The yaw right now is: %f",yaw);
 }
 
 
 int main(int argc, char ** cc){
 
-	ros::init(argc,cc,"illumination");
+	ros::init(argc,cc,"illumination_node");
 	ros::NodeHandle n;
 	//ros::Subscriber sub = n.subscribe("/mobile_base/commands/velocity",1000,twirl);//what topic to subscribe to
 	//ros::Subscriber sub = nh.subscribe ("/camera/depth_registered/points", 1000, cloud_sub);
@@ -154,7 +158,7 @@ int main(int argc, char ** cc){
 	pub = n.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity",1000);//moving the robot
 
 	client = n.serviceClient<illumination::ArrayData>("array_data");
-
+	ros::service::waitForService("array_data");
 	//ros::Publisher odo = n.advertise<std_msgs::Empty>("~commands/reset_odometry",1000);
 	//pub = n.advertise<geometry_msgs::Twist>("/cmd_vel",1000); //topic for segbots
 
@@ -176,8 +180,8 @@ int main(int argc, char ** cc){
 		//odo.publish(empty); //reset the odometer as above control logic cannot guarantee precise full turn
 	//}else{
 		int degree = angles::to_degrees(yaw);
-		ROS_INFO("%d",degree);
-		if( degree ==90|| degree == 0 || degree == -179 || degree ==45 || degree==135 || degree == -45 || degree == -135){
+		//ROS_INFO("%d",degree);
+		if( degree ==90|| degree == -179 || degree ==45 || degree==135 || degree == -45 || degree == -135){
 			turn.angular.z = 0.0;
 			inPosition = true;
 

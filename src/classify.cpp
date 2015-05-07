@@ -35,17 +35,19 @@
 //req is a vector
 bool writeTrainingData(illumination::ArrayData::Request &req,illumination::ArrayData::Response &res){
 	std::vector<unsigned char> imgVector = req.data;
-     ROS_INFO("RESPONSE: DATA RECEIVED");
+     ROS_WARN("RESPONSE: DATA RECEIVED: %ld",imgVector.size());
 
 	//if light is broken return 1
-	imgVector.push_back(1);
+	imgVector.push_back(3);
 	//if light is not broken return 0
-	//imgVector.push_back(0);
+	//imgVector.push_back(2);
 
-	std::ofstream output_file( "data.txt", std::ios_base::app ) ;  
+	std::ofstream output_file( "~data.txt", std::ios_base::app ) ;  
     std::ostream_iterator<unsigned char> output_iterator(output_file, ",");
     std::copy(imgVector.begin(), imgVector.end(), output_iterator);
     output_file<<'\n';
+	output_file.close();
+	ROS_WARN("RESPONSE: DATA WRITTEN");
 	return true;
 }
 	//picture #, mean, 1(True, broken) or 0(False, not broken)
@@ -54,9 +56,11 @@ bool writeTrainingData(illumination::ArrayData::Request &req,illumination::Array
 
 
 int main(int argc, char ** cc){
-	ros::init(argc,cc,"illumination");
+	ros::init(argc,cc,"illumination_classify");
 	ros::NodeHandle n;
 
 	ros::ServiceServer service = n.advertiseService("array_data", writeTrainingData);
-
+	while(ros::ok()){
+		ros::spinOnce();
+	}
 }
