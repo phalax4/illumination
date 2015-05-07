@@ -31,26 +31,31 @@
 #include <fstream>
 #include "illumination/ArrayData.h"
 #include <map>
+#include <iterator>
 //req is a vector
-bool classify(illumination::ArrayData::Request &req,illumination::ArrayData::Response &res){
+bool writeTrainingData(illumination::ArrayData::Request &req,illumination::ArrayData::Response &res){
 	std::vector<unsigned char> imgVector = req.data;
-	//unsigned char bins[256];
-	std::map <unsigned char[], bool> trainingData;
-	for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); it++) {
+     ROS_INFO("RESPONSE: DATA RECEIVED");
 
-	}
+	//if light is broken return 1
+	imgVector.push_back(1);
+	//if light is not broken return 0
+	//imgVector.push_back(0);
+
+	std::ofstream output_file( "data.txt", std::ios_base::app ) ;  
+    std::ostream_iterator<unsigned char> output_iterator(output_file, ",");
+    std::copy(imgVector.begin(), imgVector.end(), output_iterator);
 	return true;
 }
-void writeTrainingData(int mean){
 	//picture #, mean, 1(True, broken) or 0(False, not broken)
 
 
 
-}
+
 int main(int argc, char ** cc){
 	ros::init(argc,cc,"illumination");
 	ros::NodeHandle n;
 
-	ros::ServiceServer service = n.advertiseService("array_data", classify);
+	ros::ServiceServer service = n.advertiseService("array_data", writeTrainingData);
 
 }

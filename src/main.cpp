@@ -30,6 +30,7 @@
 #include <iostream>
 #include <fstream>
 #include "illumination/ArrayData.h"
+
 ros::Publisher pub;
 ros::ServiceClient client;
 illumination::ArrayData srv;
@@ -123,22 +124,6 @@ void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 
 // /camera/rgb/image_mono
 // /camera/rgb/image_color
-void writeToTrainingSet(){
-
-}
-
-void readFromTrainingSet(){
-
-}
-
-void Classify(){
-
-}
-//generate histogram
-//use GNU scientific library?
-void calculateHistogram(){
-
-}
 
 //recieves the raw Image
 //http://docs.ros.org/api/sensor_msgs/html/msg/Image.html
@@ -192,7 +177,7 @@ int main(int argc, char ** cc){
 	//}else{
 		int degree = angles::to_degrees(yaw);
 		ROS_INFO("%d",degree);
-		if( degree ==90|| degree == 0 || degree == -179){
+		if( degree ==90|| degree == 0 || degree == -179 || degree ==45 || degree==135 || degree == -45 || degree == -135){
 			turn.angular.z = 0.0;
 			inPosition = true;
 
