@@ -45,6 +45,7 @@ bool writeTrainingData(illumination::ArrayData::Request &req,illumination::Array
 	std::ofstream output_file( "data.txt", std::ios_base::app ) ;  
     std::ostream_iterator<unsigned char> output_iterator(output_file, ",");
     std::copy(imgVector.begin(), imgVector.end(), output_iterator);
+    output_file<<'\n';
 	return true;
 }
 	//picture #, mean, 1(True, broken) or 0(False, not broken)
