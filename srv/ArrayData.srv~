@@ -1,3 +1,4 @@
-uint8 d
+uint16[] data
+uint32 turnNumber
 ---
-bool success
+uint32 updatedTurnNumber

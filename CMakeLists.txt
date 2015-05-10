@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   pcl_ros
   pcl_conversions
   sensor_msgs
-
+  rospy
   genmsg
   #OpenCV REQUIRED 
 
@@ -124,19 +124,22 @@ include_directories(
 
 ## Declare a cpp executable
  add_executable(illumination_node src/main.cpp)
-add_executable(illumination_classify src/classify.cpp)
+#add_executable(illumination_NaiveBayes src/naiveBayesUnit.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(Illumination_node Illumination_generate_messages_cpp)
+
 add_dependencies(illumination_node illumination_generate_messages_cpp)
-add_dependencies(illumination_classify illumination_generate_messages_cpp)
+#add_dependencies(illumination_NaiveBayes illumination_generate_messages_cpp)
+
 ## Specify libraries to link a library or executable target against
  #target_link_libraries(illumination_node
  # ${catkin_LIBRARIES}
 #)
+
 target_link_libraries(illumination_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} )# ${OpenCV_LIBRARIES})
-target_link_libraries(illumination_classify ${catkin_LIBRARIES} ${PCL_LIBRARIES} )# ${OpenCV_LIBRARIES})
+#target_link_libraries(illumination_classify ${catkin_LIBRARIES} ${PCL_LIBRARIES} )# ${OpenCV_LIBRARIES})
+
 #############
 ## Install ##
 #############

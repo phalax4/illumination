@@ -1,3 +1,4 @@
 uint8[] data
+uint32 imgNum
 ---
-bool success
+uint32 updatedImgNum

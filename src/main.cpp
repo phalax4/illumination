@@ -30,7 +30,6 @@
 #include <iostream>
 #include <fstream>
 #include "illumination/ArrayData.h"
-
 ros::Publisher pub;
 ros::ServiceClient client;
 illumination::ArrayData srv;
@@ -81,44 +80,27 @@ void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	std::vector<unsigned char> lumaArray;
 
 	int counter = 0;
-	//double[imgVector/3.0] lumaArray;
-	//std::string 
-	//ofstream myfile;
-  	//myfile.open ("example.txt");
-  //myfile << "Writing this to a file.\n";
-  //myfile.close();
-	//int count = 0;
+
 	//interate through every 3 to get Luma Y
 	double luma = 0.0;
 	if(inPosition){ //max gray value is 255
 		inPosition = false;
 		for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); it+=3) {
-			//if(count==0){
 	    		luma +=  0.2126* (*it) * gam;
-	    	//	count++;
-	    	//}else if(count==1){
 	    		luma += 0.7152* (*(it+1)) * gam;
-	    	//	count++;
-	    	//}else{
 	    		luma += 0.0722*(*(it+2)) * gam;
-	    		//count = 0;
 	    		//ROS_INFO("The luma value is: %f",luma);
-	    	//}
-	    		//lumaArray[counter] = luma;
 	    		luma = 0.0;
 	    		lumaArray.push_back(luma);
-	    		//counter++;
-	    	//std::cout << *it;
 		}
 	
 		srv.request.data = lumaArray;
+		//srv.request.turnNumber = 
 
 		if (client.call(srv)){
-       		ROS_INFO("RESPONSE is %d", (int)srv.response.success);
+       		ROS_INFO("RESPONSE is %d", (int)srv.response.updatedImgNum);
      	}else{
        		ROS_ERROR("Failed to call service");
-       		//return 1;
-       		//return 0;
     	}
 
 		ROS_WARN("Picture has been Processed!");
@@ -181,7 +163,7 @@ int main(int argc, char ** cc){
 	//}else{
 		int degree = angles::to_degrees(yaw);
 		//ROS_INFO("%d",degree);
-		if( degree ==90|| degree == -179 || degree ==45 || degree==135 || degree == -45 || degree == -135){
+		if( degree ==90|| degree == -179 || degree ==45 || degree==135 || degree == -45 || degree == -135 || -90){
 			turn.angular.z = 0.0;
 			inPosition = true;
 
