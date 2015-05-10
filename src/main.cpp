@@ -36,6 +36,7 @@ illumination::ArrayData srv;
 geometry_msgs::Twist turn;
 double yaw;
 bool inPosition = true;
+int imageNumber = 0;
 //calculate HSL from RGB
 //Open CV?
 
@@ -68,17 +69,14 @@ void calculateHSI(const sensor_msgs::ImageConstPtr& imgRaw){
 
 }
 
+/*
 //directly calculate Luminance from RGB
-//calcalat Luma
-
-double gam = 1.0;//2.2;
+double gam = 1.0;//2.2; //gamma correction
 void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	//Y = 0.2126 R + 0.7152 G + 0.0722 B
 	std::vector<unsigned char> imgVector = imgRaw->data;
-	//int size = (imgVector.size())/3;
-	//unsigned char lumaArray[size];
 	std::vector<unsigned char> lumaArray;
-
+	ROS_WARN("The Height of the image is: %d and the Width is: %d",imgRaw->height,imgRaw->width);
 	int counter = 0;
 
 	//interate through every 3 to get Luma Y
@@ -107,14 +105,43 @@ void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
 	}
 
 }
-
-// /camera/rgb/image_mono
-// /camera/rgb/image_color
-
+*/
 //recieves the raw Image
 //http://docs.ros.org/api/sensor_msgs/html/msg/Image.html
+double gam = 1.0;
 void captureImage(const sensor_msgs::ImageConstPtr& imgRaw){
-	calculateLuminance(imgRaw);
+	//calculateLuminance(imgRaw);
+	std::vector<unsigned char> imgVector = imgRaw->data;
+	std::vector<unsigned char> lumaArray;
+	ROS_WARN("The Height of the image is: %d and the Width is: %d",imgRaw->height,imgRaw->width);
+	int counter = 0;
+
+	//interate through every 3 to get Luma Y
+	double luma = 0.0;
+	if(inPosition){ //max gray value is 255
+		inPosition = false;
+		for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); it+=3) {
+	    		luma +=  0.2126* (*it) * gam;
+	    		luma += 0.7152* (*(it+1)) * gam;
+	    		luma += 0.0722*(*(it+2)) * gam;
+	    		//ROS_INFO("The luma value is: %f",luma);
+	    		luma = 0.0;
+	    		lumaArray.push_back(luma);
+		}
+	
+		srv.request.data = lumaArray;
+		//srv.request.turnNumber = 
+		srv.request.imgNum = imageNumber;
+		if (client.call(srv)){
+       		ROS_INFO("RESPONSE is %d", (int)srv.response.status[0]);
+       		imageNumber = (int)srv.response.status[0];
+     	}else{
+       		ROS_ERROR("Failed to call service");
+    	}
+
+		ROS_WARN("Picture has been Processed!");
+	}
+
 
 }
 
@@ -151,31 +178,28 @@ int main(int argc, char ** cc){
 	ros::Rate r(ros_rate);
 	//int turn_number = 1;
 	double startYaw = yaw;
-	double startDegrees = angles::normalize_angle_positive(angles::to_degrees(startYaw));
+	turn.angular.z = 0.5; //default turn speed
 	while (ros::ok())
 	{
 
 
-	//if((turn_number==0) || (yaw<=-0.009 && yaw >=-0.1 )){
-	//	turn.angular.z = 0.0;
-		//turn_number--; //turn_number-1;
-		//odo.publish(empty); //reset the odometer as above control logic cannot guarantee precise full turn
-	//}else{
+		
 		int degree = angles::to_degrees(yaw);
 		//ROS_INFO("%d",degree);
-		if( degree ==90|| degree == -179 || degree ==45 || degree==135 || degree == -45 || degree == -135 || -90){
+		if(imageNumber == 6){
+			ROS_WARN("STOP");
 			turn.angular.z = 0.0;
-			inPosition = true;
-
+			inPosition = false;
 		}else{
-			turn.angular.z = 0.5;
+			if( degree ==90|| degree == -179 || degree ==45 || degree==135 || degree == -45 || degree == -135 || -90){
+				turn.angular.z = 0.0;
+				inPosition = true;
+
+			}else{
+				turn.angular.z = 0.5;
+			}
+
 		}
-
-
-	//}
-	//need to implement turn control logic aka detect how many turns have passed
-	//turn.linear.x = 0.0;
-	//turn.linear.y = 0.0;
 		pub.publish(turn);
 
 

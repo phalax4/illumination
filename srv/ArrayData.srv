@@ -1,4 +1,4 @@
 uint8[] data
 uint32 imgNum
 ---
-uint32 updatedImgNum
+int32[] status

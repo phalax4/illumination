@@ -8,12 +8,18 @@ from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure import TanhLayer
 from pybrain.tools.customxml.networkwriter import NetworkWriter
+
+globalTargetClass = -1; #Specify the target of this current dataset
+
 def writeTraining(req):
 	print "[Preparing] to write Training Data..."
 	mydata = req.data
 	print mydata
 
+	global globalTargetClass
 	#append the target here
+	mydata.append(globalTargetClass)
+
 	imageNumber = (req.imgNum)+1 	#increment number of images taken so far
 	file = open("data.txt",'a+')
 	json.dump(mydata,file)			#write in json format to file
@@ -21,7 +27,7 @@ def writeTraining(req):
 	file.close()
 	print "[Data Written]"
 	print "[Returning] Count Number..."
-	return ArrayDataResponse(imageNumber)
+	return ArrayDataResponse([imageNumber,-1])
 
 def trainNetwork():
 	print "[Training] Network has Started..."
@@ -58,11 +64,30 @@ def arrayDataServer():
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-s', action = 'store_true',default=False,dest = 'boolean_switch',help = "Initiate Node. Obtain training data and write it to file")
-	parser.add_argument('-l',action = 'store_false',default = False, dest = 'boolean_switch',help = "Initiate Network learning and saves the trained neural network to file")
-	parser.add_argument('-t', action = 'store',dest='simple',type = int, dest='simple_value',help = "Specify either 1 or 0 for data target. 1 is for a broken light, 2 is for a non-broken light.")
-	arrayDataServer()
+	parser.add_argument('-s', action = 'store_true',default=False,dest = 'switchNode',help = "Initiate Node. Obtain training data and write it to file")
+	parser.add_argument('-l',action = 'store_true',default = False, dest = 'switchTrain',help = "Initiate Network learning and saves the trained neural network to file")
+	parser.add_argument('-t', action = 'store',dest='simple',type = int, dest='classValue',help = "Specify either 1 or 0 for data target. 1 is for a broken light, 2 is for a non-broken light.")
+	parser.add_argument('--version', action='version', version='%(prog)s 2.1')
+	commandline = parser.parse_args()
+	initNode = commandline.switchNode
+	initTrain = commandline.switchTrain
+	global globalTargetClass #ensure it is the global variable modified for the target class for this dataset
+	target = commandline.classValue
+
+	if target == (0 or 1):
+		globalTargetClass = target
+	else:
+		print "[Invalid] target class, select 1 or 0"
+		return -1
+	if initNode:#if the boolean is True then initiate Node
+		arrayDataServer()
+	elif initTrain:#if the boolean is set to False then initiate Training
+		trainNetwork()
+	else
+		print "Please Specify an action to take using flags. Use help for more details."
+
 	#####Testing below##########
+
 	#If switch is set to true then run node, if set to false then run training
 	#these 2 as flag options to specify what the current data set its writing is
 	#If light is broken then 1
