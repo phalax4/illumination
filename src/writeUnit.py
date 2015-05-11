@@ -10,7 +10,8 @@ from pybrain.structure import TanhLayer
 from pybrain.tools.customxml.networkwriter import NetworkWriter
 from sklearn import svm,tree
 from sklearn.externals import joblib
-
+#import os
+#homedir = os.environ['HOME']
 globalTargetClass = -1; #Specify the target of this current dataset
 
 def writeTraining(req):
