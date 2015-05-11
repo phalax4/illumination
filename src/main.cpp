@@ -112,7 +112,7 @@ double gam = 1.0;
 void captureImage(const sensor_msgs::ImageConstPtr& imgRaw){
 	//calculateLuminance(imgRaw);
 	std::vector<unsigned char> imgVector = imgRaw->data;
-	std::vector<unsigned char> lumaArray;
+	std::vector<int> lumaArray;
 	ROS_WARN("The Height of the image is: %d and the Width is: %d",imgRaw->height,imgRaw->width);
 	int counter = 0;
 
@@ -125,8 +125,8 @@ void captureImage(const sensor_msgs::ImageConstPtr& imgRaw){
 	    		luma += 0.7152* (*(it+1)) * gam;
 	    		luma += 0.0722*(*(it+2)) * gam;
 	    		//ROS_INFO("The luma value is: %f",luma);
-	    		luma = 0.0;
 	    		lumaArray.push_back(luma);
+	    		luma = 0.0;
 		}
 	
 		srv.request.data = lumaArray;
@@ -171,7 +171,7 @@ int main(int argc, char ** cc){
 	pub = n.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity",1000);//moving the robot
 
 	client = n.serviceClient<illumination::ArrayData>("array_data");
-	ros::service::waitForService("array_data");
+	//ros::service::waitForService("array_data");
 	//ros::Publisher odo = n.advertise<std_msgs::Empty>("~commands/reset_odometry",1000);
 	//pub = n.advertise<geometry_msgs::Twist>("/cmd_vel",1000); //topic for segbots
 
@@ -184,14 +184,15 @@ int main(int argc, char ** cc){
 	double startYaw = yaw;
 	turn.angular.z = 0.5; //default turn speed
 
-	
+	//turn.linear.x = 1;
 	while (ros::ok())
 	{
 
 
 		
 		int degree = angles::to_degrees(yaw);
-		//ROS_INFO("%d",degree);
+		ROS_INFO("%d",degree);
+/*
 		if(imageNumber == 6){
 			ROS_WARN("STOP");
 			turn.angular.z = 0.0;
@@ -199,7 +200,9 @@ int main(int argc, char ** cc){
 			for_each(totalPredictedTargets.begin(),totalPredictedTargets.end(),targetTotal);
 			std::cout<<'\n';
 		}else{
-			if( degree ==90|| degree == -179 || degree ==45 || degree==135 || degree == -45 || degree == -135 || -90){
+*/	
+			if( degree ==90|| degree == -179 || degree ==45 || degree==135 || degree == -45 || degree == -135 || degree ==-90){
+				ROS_INFO("Degree is: %d",degree);
 				turn.angular.z = 0.0;
 				inPosition = true;
 
@@ -207,7 +210,7 @@ int main(int argc, char ** cc){
 				turn.angular.z = 0.5;
 			}
 
-		}
+		//}
 		pub.publish(turn);
 
 
