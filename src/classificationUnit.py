@@ -7,7 +7,7 @@ from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.tools.shortcuts import buildNetwork
 from select import select
 import sys
-from sklearn import svm
+from sklearn import svm,tree
 from sklearn.externals import joblib
 
 #requires pybrain, and ?sklearn
@@ -18,7 +18,7 @@ def runClassifier(req):
 	mylist = req.data
 	imageNumber = (req.imgNum)+1
 	#read in the trained Network
-	skynet = NetworkReader.readFrom('data.xml') 
+	skynet = NetworkReader.readFrom('annModel.xml') 
 	output = round(skynet.activate(tuple(mylist)))
 
 ############SVM Classification below#############
