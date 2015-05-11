@@ -39,7 +39,7 @@ bool inPosition = true;
 int imageNumber = 0;
 //calculate HSL from RGB
 //Open CV?
-
+std::vector<int> totalPredictedTargets;
 void calculateHSL(const sensor_msgs::ImageConstPtr& imgRaw){
 	unsigned char r, g, b, l;  
 	int max, min; 
@@ -135,6 +135,7 @@ void captureImage(const sensor_msgs::ImageConstPtr& imgRaw){
 		if (client.call(srv)){
        		ROS_INFO("RESPONSE is %d", (int)srv.response.status[0]);
        		imageNumber = (int)srv.response.status[0];
+       		totalPredictedTargets.push_back((int)srv.response.status[1]);
      	}else{
        		ROS_ERROR("Failed to call service");
     	}
@@ -153,6 +154,9 @@ void getOdom(const nav_msgs::Odometry::ConstPtr &odom_msg){
 	//ROS_INFO("The yaw right now is: %f",yaw);
 }
 
+void targetTotal(int i){
+		std::cout<< ' ' <<i;
+}
 
 int main(int argc, char ** cc){
 
@@ -179,6 +183,8 @@ int main(int argc, char ** cc){
 	//int turn_number = 1;
 	double startYaw = yaw;
 	turn.angular.z = 0.5; //default turn speed
+
+	
 	while (ros::ok())
 	{
 
@@ -190,6 +196,8 @@ int main(int argc, char ** cc){
 			ROS_WARN("STOP");
 			turn.angular.z = 0.0;
 			inPosition = false;
+			for_each(totalPredictedTargets.begin(),totalPredictedTargets.end(),targetTotal);
+			std::cout<<'\n';
 		}else{
 			if( degree ==90|| degree == -179 || degree ==45 || degree==135 || degree == -45 || degree == -135 || -90){
 				turn.angular.z = 0.0;

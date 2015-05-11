@@ -8,6 +8,8 @@ from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure import TanhLayer
 from pybrain.tools.customxml.networkwriter import NetworkWriter
+from sklearn import svm
+from sklearn.externals import joblib
 
 globalTargetClass = -1; #Specify the target of this current dataset
 
@@ -17,7 +19,7 @@ def writeTraining(req):
 	print mydata
 
 	global globalTargetClass
-	#append the target here
+	#append the target here,  no need to append if using SVM
 	mydata.append(globalTargetClass)
 
 	imageNumber = (req.imgNum)+1 	#increment number of images taken so far
@@ -32,7 +34,7 @@ def writeTraining(req):
 def trainNetwork():
 	print "[Training] Network has Started..."
 	inputSize = 0
-	with open('data.', 'r') as f:			#automatically closes file at the end of the block
+	with open('data.txt', 'r') as f:			#automatically closes file at the end of the block
   		first_line = f.readline()
   		featureNumber = len(first_line)
 		dataset = SupervisedDataSet(inputSize, 1)	 #specify size of data and target
@@ -55,6 +57,19 @@ def trainNetwork():
     #Save the now trained neural network
     NetworkWriter.writeToFile(skynet, 'trainedNetwork.xml')
     print "[Network] has been Written"
+################## SVM Method #######################
+#Change append method in write method for target persistence
+    dataX = []
+    with open('data.txt', 'r') as f:
+    	for line in f:
+    		dataX.append(json.loads(line))
+    global globalTargetClass
+    datay = [globalTargetClass] * len(dataX) #Targets, size is n_samples
+    clf = svm.SVC()
+    clf.fit(dataX,datay)
+    #Persist the trained model
+    joblib.dump(clf,'svmModel.pkl')
+
 
 def arrayDataServer():
 	rospy.init_node('writeUnit')

@@ -1,23 +1,8 @@
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
 #include <cmath>
-#include "angles/angles.h"
 #include "std_msgs/String.h"
-#include "sensor_msgs/PointCloud2.h"
-#include <pcl/point_types.h>
-#include <pcl_ros/transforms.h>
-#include <pcl/conversions.h>
-#include <pcl_conversions/pcl_conversions.h>
 #include <cstdio>
-#include <vector>
-//#include <opencv/highgui.h>
-//#include <opencv/cv.h>
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <iostream>
-#include <image_transport/image_transport.h>
-#include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
 #include <algorithm>
 #include <nav_msgs/Odometry.h>
@@ -26,17 +11,23 @@
 #include "illumination/ArrayData.h"
 #include <map>
 #include <iterator>
+#include <vector>
+
 //req is a vector
 bool doClassify(illumination::ArrayData::Request &req,illumination::ArrayData::Response &res){
 	std::vector<unsigned char> imgVector = req.data;
     ROS_WARN("[RESPONSE]: DATA RECEIVED: %ld",imgVector.size());
     unsigned int imageNumber = req.imgNum;
-    res.updatedImgNum = (imageNumber +1);
+
     unsigned int bin[256];
    	for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); it++) {
    		bin[*it]++;
    	}
+
    	
+   	std::vector<int> response;
+   	response.push_back(imageNumber+1);
+   	response.push_back(output);
 	/*
 	//if light is broken return 1
 	imgVector.push_back(1);
