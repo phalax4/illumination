@@ -1,4 +1,4 @@
-uint8[] data
+int32[] data
 uint32 imgNum
 ---
 int32[] status

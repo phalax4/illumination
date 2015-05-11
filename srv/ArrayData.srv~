@@ -1,4 +1,4 @@
-uint16[] data
-uint32 turnNumber
+uint8[] data
+uint32 imgNum
 ---
-uint32 updatedTurnNumber
+int32[] status
