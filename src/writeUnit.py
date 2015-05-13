@@ -36,7 +36,7 @@ def writeTraining(req):
 
 	imageNumber = (req.imgNum)+1 	#increment number of images taken so far
 
-	file = open("r2.1L2.txt",'a+')
+	file = open("r3BL.txt",'a+')
 	json.dump(mean,file)			#write in json format to file
 	file.write('\n')
 	file.close()
