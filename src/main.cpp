@@ -3,27 +3,12 @@
 #include <cmath>
 #include "angles/angles.h"
 #include "std_msgs/String.h"
-#include "sensor_msgs/PointCloud2.h"
-#include <pcl/point_types.h>
-#include <pcl_ros/transforms.h>
-#include <pcl/conversions.h>
-#include <pcl_conversions/pcl_conversions.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/Pose.h>
-#include <geometry_msgs/Point.h>
-#include <geometry_msgs/Quaternion.h>
 #include <cstdio>
 #include <tf/transform_listener.h>
 #include <tf/transform_datatypes.h>
 #include <vector>
-//#include <opencv/highgui.h>
-//#include <opencv/cv.h>
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
 #include <iostream>
 #include <image_transport/image_transport.h>
-#include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
 #include <algorithm>
 #include <nav_msgs/Odometry.h>
@@ -35,11 +20,13 @@ ros::ServiceClient client;
 illumination::ArrayData srv;
 geometry_msgs::Twist turn;
 double yaw;
-bool inPosition = true;
+bool inPosition = false;
 int imageNumber = 0;
-//calculate HSL from RGB
-//Open CV?
+int degree = 0;
 std::vector<int> totalPredictedTargets;
+std::vector<int> totalPredictedTargetsDeg;
+//calculate HSL from RGB
+//Use this for comparison if we have time
 void calculateHSL(const sensor_msgs::ImageConstPtr& imgRaw){
 	unsigned char r, g, b, l;  
 	int max, min; 
@@ -63,56 +50,14 @@ void calculateHSL(const sensor_msgs::ImageConstPtr& imgRaw){
 	}
 }
 
-
-
-void calculateHSI(const sensor_msgs::ImageConstPtr& imgRaw){
-
-}
-
-/*
-//directly calculate Luminance from RGB
-double gam = 1.0;//2.2; //gamma correction
-void calculateLuminance(const sensor_msgs::ImageConstPtr& imgRaw){
-	//Y = 0.2126 R + 0.7152 G + 0.0722 B
-	std::vector<unsigned char> imgVector = imgRaw->data;
-	std::vector<unsigned char> lumaArray;
-	ROS_WARN("The Height of the image is: %d and the Width is: %d",imgRaw->height,imgRaw->width);
-	int counter = 0;
-
-	//interate through every 3 to get Luma Y
-	double luma = 0.0;
-	if(inPosition){ //max gray value is 255
-		inPosition = false;
-		for(std::vector<unsigned char>::iterator it = imgVector.begin(); it != imgVector.end(); it+=3) {
-	    		luma +=  0.2126* (*it) * gam;
-	    		luma += 0.7152* (*(it+1)) * gam;
-	    		luma += 0.0722*(*(it+2)) * gam;
-	    		//ROS_INFO("The luma value is: %f",luma);
-	    		luma = 0.0;
-	    		lumaArray.push_back(luma);
-		}
-	
-		srv.request.data = lumaArray;
-		//srv.request.turnNumber = 
-
-		if (client.call(srv)){
-       		ROS_INFO("RESPONSE is %d", (int)srv.response.updatedImgNum);
-     	}else{
-       		ROS_ERROR("Failed to call service");
-    	}
-
-		ROS_WARN("Picture has been Processed!");
-	}
-
-}
-*/
-//recieves the raw Image
+//recieves the raw Image color
 //http://docs.ros.org/api/sensor_msgs/html/msg/Image.html
+//Calculates the Luma value
 double gam = 1.0;
 void captureImage(const sensor_msgs::ImageConstPtr& imgRaw){
-	//calculateLuminance(imgRaw);
 	std::vector<unsigned char> imgVector = imgRaw->data;
 	std::vector<int> lumaArray;
+
 	ROS_WARN("The Height of the image is: %d and the Width is: %d",imgRaw->height,imgRaw->width);
 	int counter = 0;
 
@@ -132,10 +77,12 @@ void captureImage(const sensor_msgs::ImageConstPtr& imgRaw){
 		srv.request.data = lumaArray;
 		//srv.request.turnNumber = 
 		srv.request.imgNum = imageNumber;
+		srv.request.degNum = degree;
 		if (client.call(srv)){
        		ROS_INFO("RESPONSE is %d", (int)srv.response.status[0]);
        		imageNumber = (int)srv.response.status[0];
        		totalPredictedTargets.push_back((int)srv.response.status[1]);
+       		totalPredictedTargetsDeg.push_back((int)srv.response.status[2]);
      	}else{
        		ROS_ERROR("Failed to call service");
     	}
@@ -172,10 +119,7 @@ int main(int argc, char ** cc){
 
 	client = n.serviceClient<illumination::ArrayData>("array_data");
 	//ros::service::waitForService("array_data");
-	//ros::Publisher odo = n.advertise<std_msgs::Empty>("~commands/reset_odometry",1000);
 	//pub = n.advertise<geometry_msgs::Twist>("/cmd_vel",1000); //topic for segbots
-
-
  
 	double ros_rate = 20.0;// x times per second
 	std_msgs::Empty empty;
@@ -190,18 +134,25 @@ int main(int argc, char ** cc){
 
 
 		
-		int degree = angles::to_degrees(yaw);
+		degree = angles::to_degrees(yaw);
 		ROS_INFO("%d",degree);
-/*
-		if(imageNumber == 6){
-			ROS_WARN("STOP");
-			turn.angular.z = 0.0;
+
+		if(imageNumber == 8){
 			inPosition = false;
+			turn.angular.z = 0.0;
+			ROS_WARN("Stopping rotation");
 			for_each(totalPredictedTargets.begin(),totalPredictedTargets.end(),targetTotal);
+			for_each(totalPredictedTargetsDeg.begin(),totalPredictedTargetsDeg.end(),targetTotal);
+
 			std::cout<<'\n';
+			
+			totalPredictedTargets.clear();
+			totalPredictedTargetsDeg.clear();
+			imageNumber = 0;
 		}else{
-*/	
+	
 			//inPosition = true;
+
 			if(degree==0){
 				inPosition == true;
 			}
@@ -214,7 +165,7 @@ int main(int argc, char ** cc){
 				turn.angular.z = 0.5;
 			}
 
-		//}
+		}
 		pub.publish(turn);
 
 

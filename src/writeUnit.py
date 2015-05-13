@@ -3,7 +3,7 @@ from illumination.srv import *
 import rospy
 import json
 import argparse
-'''
+
 from pybrain.datasets import SupervisedDataSet
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.tools.shortcuts import buildNetwork
@@ -12,7 +12,7 @@ from pybrain.tools.customxml.networkwriter import NetworkWriter
 from sklearn import svm,tree
 from sklearn.externals import joblib
 from pybrain.tools.customxml.networkreader import NetworkReader
-'''
+
 import os.path
 globalTargetClass = -1; #Specify the target of this current dataset
 
@@ -56,7 +56,7 @@ def trainNetwork():
 	#Note hidden neuron number is arbitrary, can try 1 or 4 or 3 or 5 if this methods doesnt work out
 	trainer = BackpropTrainer(skynet, dataset,learningrate = 0.3, weightdecay = 0.01,momentum = 0.99)
 	#trainer.trainUntilConvergence()
-	for i in xrange(1000):
+	for i in xrange(10000):
 		trainer.train()
     #trainer.trainEpochs(1000)
     #Save the now trained neural network

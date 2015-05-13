@@ -1,4 +1,5 @@
 int32[] data
 uint32 imgNum
+int32 degNum
 ---
 int32[] status

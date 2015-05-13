@@ -30,7 +30,7 @@ def runClassifier(req):
 	else:
 		print "ALL OK, no Broken Lights here"
 
-	return ArrayDataResponse([imageNumber,ouput]);#Will send both the image number and the result of classification
+	return ArrayDataResponse([imageNumber,ouput,req.degNum]);#Will send both the image number and the result of classification
 
 
 
