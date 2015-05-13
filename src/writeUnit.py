@@ -23,15 +23,15 @@ def writeTraining(req):
 	#append the target here,  no need to append if using SVM
 	mean = []
   	quadrants = zip(*[iter(mydata)]*4) #split it into 4
-  		for i in quadrants:
-			mean.append(reduce(lambda x, y: x + y, i) / len(i))
-	mydata.append(req.degNum)
-	mydata.append(globalTargetClass) #append the target classification
+  	for i in quadrants:
+		mean.append(reduce(lambda x, y: x + y, i) / len(i))
+	mean.append(req.degNum)
+	mean.append(globalTargetClass) #append the target classification
 
 	imageNumber = (req.imgNum)+1 	#increment number of images taken so far
 
-	file = open("redo1L.txt",'a+')
-	json.dump(mydata,file)			#write in json format to file
+	file = open("redoHSBL.txt",'a+')
+	json.dump(mean,file)			#write in json format to file
 	file.write('\n')
 	file.close()
 	print "[Data Written]"

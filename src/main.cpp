@@ -126,7 +126,7 @@ int main(int argc, char ** cc){
 	ros::Rate r(ros_rate);
 	//int turn_number = 1;
 	double startYaw = yaw;
-	turn.angular.z = 0.5; //default turn speed
+	turn.angular.z = 0.0; //default turn speed
 
 	//turn.linear.x = 1;
 	while (ros::ok())
@@ -151,8 +151,8 @@ int main(int argc, char ** cc){
 			imageNumber = 0;
 		}else{
 	*/
-			//inPosition = true;
-
+			inPosition = true;
+/*
 			if(degree==0){
 				inPosition == true;
 			}
@@ -164,7 +164,7 @@ int main(int argc, char ** cc){
 			}else{
 				turn.angular.z = 0.5;
 			}
-
+*/
 		//}
 		pub.publish(turn);
 
