@@ -3,6 +3,7 @@ from illumination.srv import *
 import rospy
 import json
 import argparse
+'''
 from pybrain.datasets import SupervisedDataSet
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.tools.shortcuts import buildNetwork
@@ -11,6 +12,7 @@ from pybrain.tools.customxml.networkwriter import NetworkWriter
 from sklearn import svm,tree
 from sklearn.externals import joblib
 from pybrain.tools.customxml.networkreader import NetworkReader
+'''
 import os.path
 globalTargetClass = -1; #Specify the target of this current dataset
 
@@ -22,7 +24,7 @@ def writeTraining(req):
 	mydata.append(globalTargetClass)
 
 	imageNumber = (req.imgNum)+1 	#increment number of images taken so far
-	file = open("data3.414CLampslightsBrokenF5.txt",'a+')
+	file = open("file11L.txt",'a+')
 	json.dump(mydata,file)			#write in json format to file
 	file.write('\n')
 	file.close()
@@ -102,11 +104,12 @@ if __name__ == "__main__":
 		#return -1
 	if initNode:#if the boolean is True then initiate Node
 		target = int(target[0])
-		if target == (0 or 1):
-			globalTargetClass = target
+		print type(target)
+		#if target == (0 or 1):
+		globalTargetClass = target
 		#print globalTargetClass
-		else:
-			print "[Invalid] target class, select 1 or 0"
+		#else:
+			#print "[Invalid] target class, select 1 or 0"
 		arrayDataServer()
 	elif initTrain:#if the boolean is set to False then initiate Training
 		trainNetwork()
