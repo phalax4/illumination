@@ -3,7 +3,7 @@ from illumination.srv import *
 import rospy
 import json
 import argparse
-'''
+
 from pybrain.datasets import SupervisedDataSet
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.tools.shortcuts import buildNetwork
@@ -12,8 +12,9 @@ from pybrain.tools.customxml.networkwriter import NetworkWriter
 from sklearn import svm,tree
 from sklearn.externals import joblib
 from pybrain.tools.customxml.networkreader import NetworkReader
-'''
+
 import numpy as np
+
 import os.path
 globalTargetClass = -1; #Specify the target of this current dataset
 
