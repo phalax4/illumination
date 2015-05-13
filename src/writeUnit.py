@@ -69,7 +69,7 @@ def trainNetwork():
 	#Note hidden neuron number is arbitrary, can try 1 or 4 or 3 or 5 if this methods doesnt work out
 	trainer = BackpropTrainer(skynet, dataset,learningrate = 0.3, weightdecay = 0.01,momentum = 0.9)
 	#trainer.trainUntilConvergence()
-	for i in xrange(10000):
+	for i in xrange(50000):
 		trainer.train()
     #trainer.trainEpochs(1000)
     #Save the now trained neural network
