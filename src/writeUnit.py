@@ -21,11 +21,15 @@ def writeTraining(req):
 	mydata = list(req.data)
 	#global globalTargetClass
 	#append the target here,  no need to append if using SVM
-	mydata.append(globalTargetClass)
+	mean = []
+  	quadrants = zip(*[iter(mydata)]*4) #split it into 4
+  		for i in quadrants:
+			mean.append(reduce(lambda x, y: x + y, i) / len(i))
+	mydata.append(globalTargetClass) #append the target classification
 
 	imageNumber = (req.imgNum)+1 	#increment number of images taken so far
 
-	file = open("test1L.txt",'a+')
+	file = open("redo1L.txt",'a+')
 	json.dump(mydata,file)			#write in json format to file
 	file.write('\n')
 	file.close()
@@ -39,7 +43,7 @@ def trainNetwork():
 	with open('file1.txt', 'r') as f:			#automatically closes file at the end of the block
   		#first_line = f.readline()
   		#inputSize = len(first_line)
-		dataset = SupervisedDataSet(307200, 1)	 #specify size of data and target
+		dataset = SupervisedDataSet(4, 1)	 #specify size of data and target
 		f.seek(0) 							#Move back to beginnning of file
 		#iterate through the file. 1 picture per line
 		for line in f:

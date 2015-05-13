@@ -136,7 +136,7 @@ int main(int argc, char ** cc){
 		
 		degree = angles::to_degrees(yaw);
 		ROS_INFO("%d",degree);
-
+/*
 		if(imageNumber == 8){
 			inPosition = false;
 			turn.angular.z = 0.0;
@@ -150,7 +150,7 @@ int main(int argc, char ** cc){
 			totalPredictedTargetsDeg.clear();
 			imageNumber = 0;
 		}else{
-	
+	*/
 			//inPosition = true;
 
 			if(degree==0){
@@ -165,7 +165,7 @@ int main(int argc, char ** cc){
 				turn.angular.z = 0.5;
 			}
 
-		}
+		//}
 		pub.publish(turn);
 
 
