@@ -13,6 +13,8 @@ from sklearn import svm,tree
 from sklearn.externals import joblib
 from pybrain.tools.customxml.networkreader import NetworkReader
 
+import numpy as np
+
 import os.path
 globalTargetClass = -1; #Specify the target of this current dataset
 
@@ -22,15 +24,20 @@ def writeTraining(req):
 	#global globalTargetClass
 	#append the target here,  no need to append if using SVM
 	mean = []
-  	quadrants = zip(*[iter(mydata)]*4) #split it into 4
+  	quadrants = zip(*[iter(mydata)]*76800) #split it into 4
+	#print quadrants[1]
   	for i in quadrants:
-		mean.append(reduce(lambda x, y: x + y, i) / len(i))
+		#x = (reduce(lambda x, y: x + y, i) / len(i))
+		x = np.mean(i)
+		#print i
+		mean.append(int(x))
+	print mean
 	mean.append(req.degNum)
 	mean.append(globalTargetClass) #append the target classification
 
 	imageNumber = (req.imgNum)+1 	#increment number of images taken so far
 
-	file = open("redoHSBL.txt",'a+')
+	file = open("r2.1L2.txt",'a+')
 	json.dump(mean,file)			#write in json format to file
 	file.write('\n')
 	file.close()
