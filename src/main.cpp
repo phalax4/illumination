@@ -201,6 +201,11 @@ int main(int argc, char ** cc){
 			std::cout<<'\n';
 		}else{
 */	
+			inPosition = true;
+			/*
+			if(degree==0){
+				inPosition == true;
+			}
 			if( degree ==90|| degree == -179 || degree ==45 || degree==135 || degree == -45 || degree == -135 || degree ==-90){
 				ROS_INFO("Degree is: %d",degree);
 				turn.angular.z = 0.0;
@@ -209,7 +214,7 @@ int main(int argc, char ** cc){
 			}else{
 				turn.angular.z = 0.5;
 			}
-
+*/
 		//}
 		pub.publish(turn);
 

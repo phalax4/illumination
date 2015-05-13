@@ -3,7 +3,6 @@ from illumination.srv import *
 import rospy
 import json
 import argparse
-'''
 from pybrain.datasets import SupervisedDataSet
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.tools.shortcuts import buildNetwork
@@ -11,21 +10,16 @@ from pybrain.structure import TanhLayer
 from pybrain.tools.customxml.networkwriter import NetworkWriter
 from sklearn import svm,tree
 from sklearn.externals import joblib
-import os
-homedir = os.environ['HOME']
-'''
+from pybrain.tools.customxml.networkreader import NetworkReader
+import os.path
 globalTargetClass = -1; #Specify the target of this current dataset
 
 def writeTraining(req):
 	print "[Preparing] to write Training Data..."
 	mydata = list(req.data)
-	#print len(req.data)
-	#print type(req.data)
-	#print mydata
-
-	global globalTargetClass
+	#global globalTargetClass
 	#append the target here,  no need to append if using SVM
-	mydata.append(0)
+	mydata.append(globalTargetClass)
 
 	imageNumber = (req.imgNum)+1 	#increment number of images taken so far
 	file = open("data3.414CLampslightsBrokenF5.txt",'a+')
@@ -35,49 +29,59 @@ def writeTraining(req):
 	print "[Data Written]"
 	print "[Returning] Count Number..."
 	return ArrayDataResponse([imageNumber,-1])
-'''
+
 def trainNetwork():
 	print "[Training] Network has Started..."
 	inputSize = 0
-	with open('data.txt', 'r') as f:			#automatically closes file at the end of the block
-  		first_line = f.readline()
-  		featureNumber = len(first_line)
-		dataset = SupervisedDataSet(inputSize, 1)	 #specify size of data and target
+	with open('file1.txt', 'r') as f:			#automatically closes file at the end of the block
+  		#first_line = f.readline()
+  		#inputSize = len(first_line)
+		dataset = SupervisedDataSet(307200, 1)	 #specify size of data and target
 		f.seek(0) 							#Move back to beginnning of file
-	    for line in f:						#iterate through the file. 1 picture per line
-	    	mylist = json.loads(line)		#list object
+		#iterate through the file. 1 picture per line
+		for line in f:
+			mylist = json.loads(line)		#list object
 	    	target = mylist[-1]				#retrieve and then delete the target classification
-	    	del a[-1]
+	    	del mylist[-1]
+	    	#print target
 	    	dataset.addSample(tuple(mylist), (target,))
 	        #print json.loads(line)
-	skynet = buildNetwork(dataset.indim, int((inputSize+1)/2), dataset.outdim, bias=True, hiddenclass=TanhLayer) #input,hidden,output
+	if os.path.isfile('annModel.xml'):
+		skynet = NetworkReader.readFrom('annModel.xml')#for use if individual sample files used
+	else:
+		skynet = buildNetwork(dataset.indim, 1, dataset.outdim, bias=True, hiddenclass=TanhLayer) #input,hidden,output
 	#SoftmaxLayer, SigmoidLayer, LinearLayer, GaussianLayer
 	#Note hidden neuron number is arbitrary, can try 1 or 4 or 3 or 5 if this methods doesnt work out
-	trainer = BackpropTrainer(skynet, ds,learningrate = 0.3, weightdecay = 0.01)
+	trainer = BackpropTrainer(skynet, dataset,learningrate = 0.3, weightdecay = 0.01,momentum = 0.99)
 	#trainer.trainUntilConvergence()
 	for i in xrange(1000):
-    	trainer.train()
+		trainer.train()
     #trainer.trainEpochs(1000)
-
     #Save the now trained neural network
-    NetworkWriter.writeToFile(skynet, 'annModel.xml')
-    print "[Network] has been Written"
+	NetworkWriter.writeToFile(skynet,'annModel.xml')
+	print "[Network] has been Written"
+
 ################## SVM Method #######################
 #Change append method in write method for target persistence
-    dataX = []
-    with open('data.txt', 'r') as f:
-    	for line in f:
-    		dataX.append(json.loads(line))
-    global globalTargetClass
-    datay = [globalTargetClass] * len(dataX) #Targets, size is n_samples
-    clf = svm.SVC(gamma = 0.01)
+	dataX = []
+	datay = []
+	with open('file1.txt', 'r') as f:
+		for line in f:
+			mylist = json.loads(line)
+			target2 = mylist[-1]
+			dataX.append(mylist[:-1])
+			datay.append(target2)
+    #global globalTargetClass
+	#datay = [target2] * len(dataX) #Targets, size is n_samples, for use with indiviual sample files
+	print [target2]
+	clf = svm.SVC(gamma = 0.01,cache_size = 1000,scale_C = False)
     #clf = tree.DecisionTreeClassifier()
-    clf.fit(dataX,datay)
+	clf.fit(dataX,datay)
 
     #Persist the trained model
-    joblib.dump(clf,'svmModel.pkl')
+	joblib.dump(clf,'svmModel.pkl')
     #joblib.dump(clf,'treeModel.pkl')
-'''
+
 def arrayDataServer():
 	rospy.init_node('writeUnit')
 	s = rospy.Service('array_data',ArrayData,writeTraining)
@@ -88,20 +92,21 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-s', action = 'store_true',default=False,dest = 'switchNode',help = "Initiate Node. Obtain training data and write it to file")
 	parser.add_argument('-l',action = 'store_true',default = False, dest = 'switchTrain',help = "Initiate Network learning and saves the trained neural network to file")
-	#parser.add_argument('-t', action = 'store',dest='simple', dest='classValue',help = "Specify either 1 or 0 for data target. 1 is for a broken light, 2 is for a non-broken light.")
+	parser.add_argument('-t', action = 'store', dest='classValue',nargs =1 ,help = "Specify either 1 or 0 for data target. 1 is for a broken light, 2 is for a non-broken light.")
 	parser.add_argument('--version', action='version', version='%(prog)s 2.1')
 	commandline = parser.parse_args()
 	initNode = commandline.switchNode
 	initTrain = commandline.switchTrain
-	#global globalTargetClass #ensure it is the global variable modified for the target class for this dataset
-	target = 1 #commandline.classValue
-
-	if target == (0 or 1):
-		globalTargetClass = target
-	else:
-		print "[Invalid] target class, select 1 or 0"
+	 #global globalTargetClass #ensure it is the global variable modified for the target class for this dataset
+	target = commandline.classValue
 		#return -1
 	if initNode:#if the boolean is True then initiate Node
+		target = int(target[0])
+		if target == (0 or 1):
+			globalTargetClass = target
+		#print globalTargetClass
+		else:
+			print "[Invalid] target class, select 1 or 0"
 		arrayDataServer()
 	elif initTrain:#if the boolean is set to False then initiate Training
 		trainNetwork()
