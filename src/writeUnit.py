@@ -25,6 +25,7 @@ def writeTraining(req):
   	quadrants = zip(*[iter(mydata)]*4) #split it into 4
   		for i in quadrants:
 			mean.append(reduce(lambda x, y: x + y, i) / len(i))
+	mydata.append(req.degNum)
 	mydata.append(globalTargetClass) #append the target classification
 
 	imageNumber = (req.imgNum)+1 	#increment number of images taken so far
@@ -49,7 +50,7 @@ def trainNetwork():
 		for line in f:
 			mylist = json.loads(line)		#list object
 	    	target = mylist[-1]				#retrieve and then delete the target classification
-	    	del mylist[-1]
+	    	del mylist[-2:]
 	    	#print target
 	    	dataset.addSample(tuple(mylist), (target,))
 	        #print json.loads(line)
@@ -76,7 +77,7 @@ def trainNetwork():
 		for line in f:
 			mylist = json.loads(line)
 			target2 = mylist[-1]
-			dataX.append(mylist[:-1])
+			dataX.append(mylist[:-2])
 			datay.append(target2)
     #global globalTargetClass
 	#datay = [target2] * len(dataX) #Targets, size is n_samples, for use with indiviual sample files
