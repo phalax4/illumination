@@ -56,10 +56,10 @@ def trainNetwork():
 	if os.path.isfile('annModel.xml'):
 		skynet = NetworkReader.readFrom('annModel.xml')#for use if individual sample files used
 	else:
-		skynet = buildNetwork(dataset.indim, 1, dataset.outdim, bias=True, hiddenclass=TanhLayer) #input,hidden,output
+		skynet = buildNetwork(dataset.indim, 8, dataset.outdim, bias=True, hiddenclass=TanhLayer) #input,hidden,output
 	#SoftmaxLayer, SigmoidLayer, LinearLayer, GaussianLayer
 	#Note hidden neuron number is arbitrary, can try 1 or 4 or 3 or 5 if this methods doesnt work out
-	trainer = BackpropTrainer(skynet, dataset,learningrate = 0.3, weightdecay = 0.01,momentum = 0.99)
+	trainer = BackpropTrainer(skynet, dataset,learningrate = 0.3, weightdecay = 0.01,momentum = 0.9)
 	#trainer.trainUntilConvergence()
 	for i in xrange(10000):
 		trainer.train()
