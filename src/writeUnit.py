@@ -3,7 +3,7 @@ from illumination.srv import *
 import rospy
 import json
 import argparse
-
+'''
 from pybrain.datasets import SupervisedDataSet
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.tools.shortcuts import buildNetwork
@@ -12,7 +12,7 @@ from pybrain.tools.customxml.networkwriter import NetworkWriter
 from sklearn import svm,tree
 from sklearn.externals import joblib
 from pybrain.tools.customxml.networkreader import NetworkReader
-
+'''
 import os.path
 globalTargetClass = -1; #Specify the target of this current dataset
 
@@ -24,7 +24,7 @@ def writeTraining(req):
 	mydata.append(globalTargetClass)
 
 	imageNumber = (req.imgNum)+1 	#increment number of images taken so far
-	file = open("file11L.txt",'a+')
+	file = open("test1L.txt",'a+')
 	json.dump(mydata,file)			#write in json format to file
 	file.write('\n')
 	file.close()
