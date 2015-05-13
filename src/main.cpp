@@ -201,8 +201,7 @@ int main(int argc, char ** cc){
 			std::cout<<'\n';
 		}else{
 */	
-			inPosition = true;
-			/*
+			//inPosition = true;
 			if(degree==0){
 				inPosition == true;
 			}
@@ -214,7 +213,7 @@ int main(int argc, char ** cc){
 			}else{
 				turn.angular.z = 0.5;
 			}
-*/
+
 		//}
 		pub.publish(turn);
 
