@@ -22,7 +22,7 @@ def writeTraining(req):
 	mydata.append(globalTargetClass)
 
 	imageNumber = (req.imgNum)+1 	#increment number of images taken so far
-	file = open("data3.414CLampslightsBrokenF5.txt",'a+')
+	file = open("Take1L.txt",'a+')
 	json.dump(mydata,file)			#write in json format to file
 	file.write('\n')
 	file.close()
