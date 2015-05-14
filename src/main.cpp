@@ -106,7 +106,6 @@ void targetTotal(int i){
 }
 
 int main(int argc, char ** cc){
-
 	ros::init(argc,cc,"illumination_node");
 	ros::NodeHandle n;
 	//ros::Subscriber sub = n.subscribe("/mobile_base/commands/velocity",1000,twirl);//what topic to subscribe to

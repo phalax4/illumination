@@ -8,8 +8,10 @@ from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure import TanhLayer
 from pybrain.tools.customxml.networkwriter import NetworkWriter
+"""
 from sklearn import svm,tree
 from sklearn.externals import joblib
+"""
 from pybrain.tools.customxml.networkreader import NetworkReader
 
 import numpy as np
