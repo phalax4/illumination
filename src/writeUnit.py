@@ -3,7 +3,6 @@ from illumination.srv import *
 import rospy
 import json
 import argparse
-
 from pybrain.datasets import SupervisedDataSet
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.tools.shortcuts import buildNetwork
@@ -16,8 +15,9 @@ from pybrain.tools.customxml.networkreader import NetworkReader
 import numpy as np
 
 import os.path
-globalTargetClass = -1; #Specify the target of this current dataset
-
+globalTargetClass = -1; #Specify the target of this current dataset here for use in writing training data
+writeFile = ""
+#Write training data to file
 def writeTraining(req):
 	print "[Preparing] to write Training Data..."
 	mydata = list(req.data)
@@ -37,7 +37,7 @@ def writeTraining(req):
 
 	imageNumber = (req.imgNum)+1 	#increment number of images taken so far
 
-	file = open("r3BL.txt",'a+')
+	file = open(writeFile,'a+')
 	json.dump(mean,file)			#write in json format to file
 	file.write('\n')
 	file.close()
@@ -86,8 +86,7 @@ def trainNetwork():
 			target2 = mylist[-1]
 			dataX.append(mylist[:-2])
 			datay.append(target2)
-    #global globalTargetClass
-	#datay = [target2] * len(dataX) #Targets, size is n_samples, for use with indiviual sample files
+	#datay = [target2] * len(dataX) #Targets, size is n_samples, for use with indiviual sample files with same target
 	print [target2]
 	clf = svm.SVC(gamma = 0.01,cache_size = 1000,scale_C = False)
     #clf = tree.DecisionTreeClassifier()
@@ -95,12 +94,13 @@ def trainNetwork():
 
     #Persist the trained model
 	joblib.dump(clf,'svmModel.pkl')
-    #joblib.dump(clf,'treeModel.pkl')
+    	#joblib.dump(clf,'treeModel.pkl')
 
 def arrayDataServer():
 	rospy.init_node('writeUnit')
 	s = rospy.Service('array_data',ArrayData,writeTraining)
 	print "[Greenlight]: to receive data..."
+	print writeFile
 	rospy.spin()
 
 if __name__ == "__main__":
@@ -108,16 +108,17 @@ if __name__ == "__main__":
 	parser.add_argument('-s', action = 'store_true',default=False,dest = 'switchNode',help = "Initiate Node. Obtain training data and write it to file")
 	parser.add_argument('-l',action = 'store_true',default = False, dest = 'switchTrain',help = "Initiate Network learning and saves the trained neural network to file")
 	parser.add_argument('-t', action = 'store', dest='classValue',nargs =1 ,help = "Specify either 1 or 0 for data target. 1 is for a broken light, 2 is for a non-broken light.")
-	parser.add_argument('--version', action='version', version='%(prog)s 2.1')
+	parser.add_argument('filename')
 	commandline = parser.parse_args()
 	initNode = commandline.switchNode
 	initTrain = commandline.switchTrain
+	writeFile = str(commandline.filename)
 	 #global globalTargetClass #ensure it is the global variable modified for the target class for this dataset
 	target = commandline.classValue
 		#return -1
 	if initNode:#if the boolean is True then initiate Node
 		target = int(target[0])
-		print type(target)
+		#print type(target)
 		#if target == (0 or 1):
 		globalTargetClass = target
 		#print globalTargetClass
