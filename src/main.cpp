@@ -15,6 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include "illumination/ArrayData.h"
+#include <string>
 ros::Publisher pub;
 ros::ServiceClient client;
 illumination::ArrayData srv;
@@ -105,6 +106,9 @@ void targetTotal(int i){
 		std::cout<< ' ' <<i;
 }
 
+void continueOnPath(){
+
+}
 int main(int argc, char ** cc){
 	ros::init(argc,cc,"illumination_node");
 	ros::NodeHandle n;
@@ -126,32 +130,57 @@ int main(int argc, char ** cc){
 	//int turn_number = 1;
 	double startYaw = yaw;
 	turn.angular.z = 0.0; //default turn speed
-
+	tf::TransformListener listener;
+	bool broken = false;
 	//turn.linear.x = 1;
 	while (ros::ok())
 	{
 
-
+		
 		
 		degree = angles::to_degrees(yaw);
 		ROS_INFO("%d",degree);
-/*
+
+		//inPosition = true;
 		if(imageNumber == 8){
 			inPosition = false;
 			turn.angular.z = 0.0;
 			ROS_WARN("Stopping rotation");
-			for_each(totalPredictedTargets.begin(),totalPredictedTargets.end(),targetTotal);
-			for_each(totalPredictedTargetsDeg.begin(),totalPredictedTargetsDeg.end(),targetTotal);
-
+			for_each(totalPredictedTargets.begin(),totalPredictedTargets.end(),targetTotal); //prints the prediction for the image
+			for_each(totalPredictedTargetsDeg.begin(),totalPredictedTargetsDeg.end(),targetTotal);//prints the location in degrees of the image at this particular x,y coordinate
 			std::cout<<'\n';
+			
+
+			if(broken){
+				geometry_msgs::PoseStamped base;
+				geometry_msgs::PoseStamped map;
+				base.header.frame_id = "/base_link";
+				base.pose.position.x = 0.;
+				base.pose.position.y = 0.;
+
+				base.pose.orientation = tf::createQuaternionMsgFromYaw(0.);
+				ros::Time currentTime = ros::Time(0);
+
+				listener.getLatestCommonTime(base.header.frame_id, "/map", currentTime, NULL);
+				base.header.stamp = currentTime;
+				listener.transformPose("/map", base, map);
+
+				float x = base.pose.position.x;
+				float y = base.pose.position.y;
+
+				std::string mystring ="("+std::to_string(x)+", "+std::to_string(y)+")";
+				std::ofstream outfile;
+				
+  				outfile.open("markerCoordinates.txt", std::ios_base::app);
+  				outfile << mystring << '\n'; //write the coordinates of broken lights to file
+			}
 			
 			totalPredictedTargets.clear();
 			totalPredictedTargetsDeg.clear();
 			imageNumber = 0;
 		}else{
-	*/
-			inPosition = true;
-/*
+	
+
 			if(degree==0){
 				inPosition == true;
 			}
@@ -163,8 +192,8 @@ int main(int argc, char ** cc){
 			}else{
 				turn.angular.z = 0.5;
 			}
-*/
-		//}
+
+		}
 		pub.publish(turn);
 
 

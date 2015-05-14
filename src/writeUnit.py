@@ -8,10 +8,10 @@ from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure import TanhLayer
 from pybrain.tools.customxml.networkwriter import NetworkWriter
-"""
+
 from sklearn import svm,tree
 from sklearn.externals import joblib
-"""
+
 from pybrain.tools.customxml.networkreader import NetworkReader
 
 import numpy as np
@@ -29,9 +29,7 @@ def writeTraining(req):
   	quadrants = zip(*[iter(mydata)]*76800) #split it into 4
 	#print quadrants[1]
   	for i in quadrants:
-		#x = (reduce(lambda x, y: x + y, i) / len(i))
 		x = np.mean(i)
-		#print i
 		mean.append(int(x))
 	print mean
 	mean.append(req.degNum)

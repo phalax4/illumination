@@ -26,11 +26,14 @@ def runClassifier(req):
 	clf.predict([mylist])
 
 	if output == 1:
-		print "There is a Broken Light here." #Maybe record the information of where it is at
-	else:
-		print "ALL OK, no Broken Lights here"
+		print "There could be a [broken] light here." #Maybe record the information of where it is at
 
-	return ArrayDataResponse([imageNumber,ouput,req.degNum]);#Will send both the image number and the result of classification
+	elif output == 2:
+		print "There are [no] broken lights here"
+	else:
+		print "There is a broken light here."
+
+	return ArrayDataResponse([imageNumber,output,req.degNum]);#Will send both the image number and the result of classification
 
 
 
