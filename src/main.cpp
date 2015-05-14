@@ -16,6 +16,7 @@
 #include <fstream>
 #include "illumination/ArrayData.h"
 #include <string>
+#include <sstream>
 ros::Publisher pub;
 ros::ServiceClient client;
 illumination::ArrayData srv;
@@ -127,11 +128,11 @@ int main(int argc, char ** cc){
 	double ros_rate = 20.0;// x times per second
 	std_msgs::Empty empty;
 	ros::Rate r(ros_rate);
-	//int turn_number = 1;
 	double startYaw = yaw;
 	turn.angular.z = 0.0; //default turn speed
 	tf::TransformListener listener;
 	bool broken = false;
+	std::ostringstream ss;
 	//turn.linear.x = 1;
 	while (ros::ok())
 	{
@@ -164,11 +165,11 @@ int main(int argc, char ** cc){
 				listener.getLatestCommonTime(base.header.frame_id, "/map", currentTime, NULL);
 				base.header.stamp = currentTime;
 				listener.transformPose("/map", base, map);
-
+				
 				float x = base.pose.position.x;
 				float y = base.pose.position.y;
-
-				std::string mystring ="("+std::to_string(x)+", "+std::to_string(y)+")";
+				ss<<"("<< x <<", "<< y <<")";
+				std::string mystring = ss.str();
 				std::ofstream outfile;
 				
   				outfile.open("markerCoordinates.txt", std::ios_base::app);
