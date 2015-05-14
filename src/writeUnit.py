@@ -8,10 +8,10 @@ from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure import TanhLayer
 from pybrain.tools.customxml.networkwriter import NetworkWriter
-"""
+
 from sklearn import svm,tree
 from sklearn.externals import joblib
-"""
+
 from pybrain.tools.customxml.networkreader import NetworkReader
 
 import numpy as np
@@ -82,7 +82,7 @@ def trainNetwork():
 #Change append method in write method for target persistence
 	dataX = []
 	datay = []
-	with open('file1.txt', 'r') as f:
+	with open(writeFile, 'r') as f:
 		for line in f:
 			mylist = json.loads(line)
 			target2 = mylist[-1]
@@ -90,10 +90,10 @@ def trainNetwork():
 			datay.append(target2)
 	#datay = [target2] * len(dataX) #Targets, size is n_samples, for use with indiviual sample files with same target
 	print [target2]
-	clf = svm.SVC(gamma = 0.01,cache_size = 1000,scale_C = False)
-    #clf = tree.DecisionTreeClassifier()
+	print dataX
+	print datay
+	clf = svm.LinearSVC()
 	clf.fit(dataX,datay)
-
     #Persist the trained model
 	joblib.dump(clf,'svmModel.pkl')
     	#joblib.dump(clf,'treeModel.pkl')
