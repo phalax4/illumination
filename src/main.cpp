@@ -152,7 +152,7 @@ int main(int argc, char ** cc){
 			std::cout<<'\n';
 			
 
-			if(broken){
+			if(broken){//set map marker, currenyl no algorithm to evaluate if it is true or not
 				geometry_msgs::PoseStamped base;
 				geometry_msgs::PoseStamped map;
 				base.header.frame_id = "/base_link";
