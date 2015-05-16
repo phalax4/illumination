@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from illumination.srv import *
 import rospy
 import json
@@ -14,17 +15,18 @@ from sklearn.externals import joblib
 #need flag to specify to load saved neural network or to train neural network
 #If light is broken then 1
 #If light is not broken then 0
+
 def runClassifier(req):
 	mylist = req.data
 	imageNumber = (req.imgNum)+1
 	#read in the trained Network
-	skynet = NetworkReader.readFrom('annModel.xml') 
-	output = round(skynet.activate(tuple(mylist)))
+	#skynet = NetworkReader.readFrom('annModel.xml') 
+	#output = round(skynet.activate(tuple(mylist)))
 
 ############SVM Classification below#############
 	clf = joblib.load('svmModel.pkl')
-	clf.predict([mylist])
-
+	output = int((clf.predict([mylist])[0]))
+	
 	if output == 1:
 		print "There could be a [broken] light here." #Maybe record the information of where it is at
 
@@ -38,7 +40,7 @@ def runClassifier(req):
 
 
 def arrayClassificationServer():
-	rospy.init_node('writeUnit')
+	rospy.init_node('classyUnit')
 	s = rospy.Service('array_data',ArrayData,runClassifier)
 	print "[Greenlight]: to receive data..."
 

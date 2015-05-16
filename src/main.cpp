@@ -143,7 +143,7 @@ int main(int argc, char ** cc){
 		ROS_INFO("%d",degree);
 
 		//inPosition = true;
-		if(imageNumber == 8){
+		if(imageNumber >= 8){
 			inPosition = false;
 			turn.angular.z = 0.0;
 			ROS_WARN("Stopping rotation");
@@ -185,7 +185,7 @@ int main(int argc, char ** cc){
 			if(degree==0){
 				inPosition == true;
 			}
-			if( degree ==90|| degree == -179 || degree ==45 || degree==135 || degree == -45 || degree == -135 || degree ==-90){
+			if( degree ==90|| degree == -179 || degree ==45 || degree==135 || degree == -45 || degree == -135 ||degree ==-90){
 				ROS_INFO("Degree is: %d",degree);
 				turn.angular.z = 0.0;
 				inPosition = true;
